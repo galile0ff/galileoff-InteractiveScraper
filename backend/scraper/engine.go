@@ -3,6 +3,7 @@ package scraper
 import (
 	"fmt"
 	"log"
+	"net"
 	"strings"
 	"time"
 
@@ -74,13 +75,58 @@ func AnalyzeSite(targetURL string, torProxy string) (*ScrapeResult, error) {
 	// Hata yönetimi
 	c.OnError(func(r *colly.Response, err error) {
 		log.Printf("Request URL: %s failed with %v", r.Request.URL, err)
-		result.ErrorMessage = err.Error()
+		errMsg := err.Error()
+
+		// SOCKS Hata Kodları Analizi
+		if strings.Contains(errMsg, "unknown code: 246") || strings.Contains(errMsg, "0xF6") {
+			errMsg = "Onion adresi geçersiz veya desteklenmeyen formatta (V2)."
+		} else if strings.Contains(errMsg, "timeout") {
+			errMsg = "Bağlantı zaman aşımına uğradı. Site çok yavaş veya kapalı."
+		} else if strings.Contains(errMsg, "host unreachable") {
+			errMsg = "Hedef sunucuya ulaşılamıyor."
+		} else if strings.Contains(errMsg, "connection refused") {
+			errMsg = "Bağlantı reddedildi. Tor proxy çalışmıyor olabilir."
+		}
+
+		result.ErrorMessage = errMsg
 	})
 
 	err := c.Visit(targetURL)
 	if err != nil {
+		// Eğer OnError içinde daha anlamlı bir hata mesajı varsa onu döndür
+		if result.ErrorMessage != "" {
+			return nil, fmt.Errorf("%s", result.ErrorMessage)
+		}
 		return nil, err
 	}
 
 	return result, nil
+}
+
+// GetActiveTorProxy, sistemde çalışan Tor bağlantısını (9050 veya 9150) tespit eder.
+func GetActiveTorProxy() (string, error) {
+	ports := []string{"9050", "9150"}
+
+	for _, port := range ports {
+		address := "127.0.0.1:" + port
+		conn, err := net.DialTimeout("tcp", address, 500*time.Millisecond)
+		if err == nil {
+			conn.Close()
+			return "socks5://" + address, nil
+		}
+	}
+
+	return "", fmt.Errorf("Sistem Tor (9050) veya Tor Browser (9150) açık değil. Lütfen Tor bağlantınızı kontrol edin.")
+}
+
+// IsProxyConnectionError, hatanın Tor proxy'sine bağlanamama ile ilgili olup olmadığını kontrol eder
+func IsProxyConnectionError(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := strings.ToLower(err.Error())
+	// Proxy bağlantı reddedildi veya bulunamadı hataları
+	return strings.Contains(msg, "connection refused") ||
+		strings.Contains(msg, "proxyconnect tcp") ||
+		strings.Contains(msg, "dial tcp 127.0.0.1")
 }

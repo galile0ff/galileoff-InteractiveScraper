@@ -30,6 +30,9 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 		return
 	}
 
+	// URL Normalizasyonu (https ve .onion ekle)
+	req.URL = scraper.NormalizeURL(req.URL)
+
 	// 1. Sitenin var olup olmadığını kontrol et
 	var existingSite models.Site
 	if result := sc.DB.Where("url = ?", req.URL).First(&existingSite); result.Error == nil {
@@ -38,28 +41,35 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 	// 2. Taramayı Başlat
 	torProxy := os.Getenv("TOR_PROXY")
 
-	// Tarama için varsayılan port
+	// Eğer env tanımlı değilse, aktif portu otomatik bul
 	if torProxy == "" {
-		torProxy = "socks5://127.0.0.1:9050"
+		activeProxy, err := scraper.GetActiveTorProxy()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		torProxy = activeProxy
 	}
 
 	result, err := scraper.AnalyzeSite(req.URL, torProxy)
 
-	// Tarama için yedek port
-	if (err != nil || result.ErrorMessage != "") && torProxy == "socks5://127.0.0.1:9050" {
-		altProxy := "socks5://127.0.0.1:9150"
-		// 9150 ile tekrar dene
-		resultAlt, errAlt := scraper.AnalyzeSite(req.URL, altProxy)
-		if errAlt == nil && resultAlt.ErrorMessage == "" {
-			result = resultAlt
-			err = nil
-			torProxy = altProxy // Loglama için proxy değişkenini güncelle
-		}
-	}
-
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Tor Network Hatası: Bağlantı kurulamadı. (Denenen Portlar: 9050 ve 9150). Tor Browser açık mı? Hata Detayı: " + err.Error(),
+		errStr := err.Error()
+		status := http.StatusInternalServerError
+
+		var userMsg string
+		if scraper.IsProxyConnectionError(err) {
+			userMsg = "Tor Ağına Bağlanılamadı. Lütfen Tor Browser'ın açık olduğundan emin olun."
+		} else {
+			status = http.StatusBadGateway
+			userMsg = "Site Taranamadı: " + errStr
+		}
+
+		c.JSON(status, gin.H{
+			"error":   userMsg,
+			"details": errStr,
 		})
 		return
 	}
@@ -93,7 +103,7 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 		return
 	}
 
-	// Create Stats snapshot
+	// Stats oluştur
 	stats := models.Stats{
 		SiteID:       site.ID,
 		TotalThreads: result.ThreadCount,

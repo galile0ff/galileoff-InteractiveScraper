@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background-color: #000000;
+  /* İnce ızgara deseni: genel sayfa için, loginde özel grid var */
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-attachment: fixed;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+@layer components {
+
+  /* --- Genel Bileşenler --- */
+  .glass-panel {
+    @apply bg-zinc-950 border border-zinc-800 shadow-xl;
+  }
+
+  .glass-sidebar {
+    @apply bg-black border-r border-zinc-800;
+  }
+
+  .glass-card {
+    @apply bg-zinc-900 border border-zinc-800 transition-colors duration-200 hover:border-zinc-700;
+  }
+
+  .glass-input {
+    @apply bg-black border border-zinc-800 text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 transition-all rounded-md shadow-inner;
+  }
+
+  .glass-button {
+    @apply bg-zinc-100 hover:bg-white text-black font-semibold border border-transparent transition-all shadow-sm active:transform active:scale-95;
+  }
+
+  .glass-button-primary {
+    @apply bg-white text-black hover:bg-zinc-200 border border-transparent transition-all font-semibold rounded-md;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .glass-button-secondary {
+    @apply bg-zinc-900 text-zinc-300 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 transition-all font-medium rounded-md;
+  }
+
+  /* --- LOGIN EKRANI ÖZEL STİLLER --- */
+
+  .login-page-bg {
+    @apply min-h-screen w-full flex items-center justify-center bg-[#030303] text-zinc-300 font-mono relative overflow-hidden selection:bg-white selection:text-black;
+  }
+
+  .login-bg-noise {
+    @apply absolute inset-0 opacity-[0.03] pointer-events-none z-[1];
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+  }
+
+  .login-perspective-grid {
+    @apply absolute inset-0 bg-[size:40px_40px] pointer-events-none;
+    background-image:
+      linear-gradient(to_right, #80808005 1px, transparent 1px),
+      linear-gradient(to_bottom, #80808005 1px, transparent 1px);
+    mask-image: radial-gradient(ellipse 60% 50% at 50% 0%, #000 70%, transparent 100%);
+  }
+
+  .login-card-wrapper {
+    @apply relative z-10 w-full max-w-[440px] p-6;
+  }
+
+  .login-card-body {
+    @apply bg-[#050505]/90 backdrop-blur-xl border border-zinc-800 shadow-2xl relative overflow-hidden;
+  }
+
+  .login-scanline {
+    @apply absolute inset-0 z-[2] pointer-events-none opacity-20;
+    background-image:
+      linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+      linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
+  }
+
+  .login-corner-border {
+    @apply absolute w-8 h-8 transition-colors duration-500 border-zinc-700;
+  }
+
+  .login-corner-border.error {
+    @apply border-red-600;
+  }
+
+  .login-input-wrapper {
+    @apply relative flex items-center;
+  }
+
+  .login-input-icon-box {
+    @apply absolute left-0 w-8 h-full flex items-center justify-center border-r border-zinc-800 bg-zinc-900/50 text-zinc-500 group-focus-within:text-white group-focus-within:border-white transition-all;
+  }
+
+  .login-input {
+    @apply w-full bg-zinc-950/50 border border-zinc-800 py-3 pl-12 pr-4 text-xs text-white placeholder-zinc-800 outline-none focus:border-white focus:bg-zinc-900 transition-all font-mono tracking-wider;
+  }
+
+  .login-submit-btn {
+    @apply relative w-full h-12 flex items-center justify-center text-xs font-bold uppercase tracking-[0.2em] transition-all duration-300 border overflow-hidden;
+  }
+
+  .login-submit-btn.idle {
+    @apply bg-zinc-100 text-black border-zinc-100 hover:bg-black hover:text-white;
+  }
+
+  .login-submit-btn.loading {
+    @apply bg-black text-white border-zinc-800 cursor-wait;
+  }
+
+  .login-submit-btn.success {
+    @apply bg-emerald-600 border-emerald-600 text-white;
+  }
+
+  .login-submit-btn.error {
+    @apply bg-red-600 border-red-600 text-white;
+  }
+}
+
+/* Kaydırma Çubuğu */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}

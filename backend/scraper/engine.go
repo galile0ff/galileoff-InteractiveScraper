@@ -20,7 +20,36 @@ type ScrapeResult struct {
 	ErrorMessage string
 }
 
+// AnalyzeSite, hedef siteyi tarar ve sonuçları döndürür.
 func AnalyzeSite(targetURL string, torProxy string) (*ScrapeResult, error) {
+	var result *ScrapeResult
+	var err error
+	maxRetries := 3
+
+	for i := 0; i < maxRetries; i++ {
+		// Loglama: Deneme sayısı
+		if i > 0 {
+			log.Printf("Yeniden deneniyor (%d/%d): %s", i+1, maxRetries, targetURL)
+			time.Sleep(2 * time.Second) // Bekleme süresi
+		}
+
+		result, err = performScan(targetURL, torProxy)
+
+		// Başarılıysa veya kritik olmayan bir hata varsa dön
+		if err == nil {
+			return result, nil
+		}
+
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "geçersiz") || strings.Contains(errMsg, "desteklenmeyen") {
+			return nil, err
+		}
+	}
+
+	return nil, fmt.Errorf("Maksimum deneme sayısına ulaşıldı. Son hata: %v", err)
+}
+
+func performScan(targetURL string, torProxy string) (*ScrapeResult, error) {
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
 	)
@@ -63,12 +92,32 @@ func AnalyzeSite(targetURL string, torProxy string) (*ScrapeResult, error) {
 		}
 
 		// Yaygın forum yapı sınıflarını/ID'lerini kontrol et
-		if e.DOM.Find(".thread").Length() > 0 || e.DOM.Find(".post").Length() > 0 || e.DOM.Find("#forums").Length() > 0 {
+		threadLen := e.DOM.Find(".thread").Length()
+		postLen := e.DOM.Find(".post").Length()
+
+		if threadLen > 0 || postLen > 0 || e.DOM.Find("#forums").Length() > 0 {
 			keywordCount += 2
 		}
 
 		if keywordCount >= 3 {
 			result.IsForum = true
+		}
+
+		// İstatistikleri ata
+		if threadLen > 0 {
+			result.ThreadCount = threadLen
+		} else {
+			if result.IsForum {
+				result.ThreadCount = len(text) / 500
+			}
+		}
+
+		if postLen > 0 {
+			result.PostCount = postLen
+		} else {
+			if result.IsForum {
+				result.PostCount = len(text) / 100
+			}
 		}
 	})
 
@@ -86,6 +135,8 @@ func AnalyzeSite(targetURL string, torProxy string) (*ScrapeResult, error) {
 			errMsg = "Hedef sunucuya ulaşılamıyor."
 		} else if strings.Contains(errMsg, "connection refused") {
 			errMsg = "Bağlantı reddedildi. Tor proxy çalışmıyor olabilir."
+		} else if strings.Contains(errMsg, "EOF") {
+			errMsg = "Sunucu bağlantıyı kesti (Boş Yanıt). Site çevrimdışı veya Tor devresi koptu."
 		}
 
 		result.ErrorMessage = errMsg

@@ -1,10 +1,12 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"scraper/models"
 	"scraper/scraper"
+	"scraper/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -32,10 +34,12 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 
 	// URL Normalizasyonu (https ve .onion ekle)
 	req.URL = scraper.NormalizeURL(req.URL)
+	utils.LogInfo(sc.DB, fmt.Sprintf("Tarama isteği alındı: %s", req.URL))
 
 	// 1. Sitenin var olup olmadığını kontrol et
 	var existingSite models.Site
 	if result := sc.DB.Where("url = ?", req.URL).First(&existingSite); result.Error == nil {
+		utils.LogInfo(sc.DB, fmt.Sprintf("Hedef veritabanında mevcut: %s", req.URL))
 	}
 
 	// 2. Taramayı Başlat
@@ -45,6 +49,7 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 	if torProxy == "" {
 		activeProxy, err := scraper.GetActiveTorProxy()
 		if err != nil {
+			utils.LogError(sc.DB, "Aktif Tor proxy bulunamadı.")
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})
@@ -52,6 +57,7 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 		}
 		torProxy = activeProxy
 	}
+	utils.LogInfo(sc.DB, fmt.Sprintf("Proxy bağlantısı kuruldu: %s", torProxy))
 
 	result, err := scraper.AnalyzeSite(req.URL, torProxy)
 
@@ -62,9 +68,11 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 		var userMsg string
 		if scraper.IsProxyConnectionError(err) {
 			userMsg = "Tor Ağına Bağlanılamadı. Lütfen Tor Browser'ın açık olduğundan emin olun."
+			utils.LogError(sc.DB, "Tor ağına bağlanılamadı.")
 		} else {
 			status = http.StatusBadGateway
 			userMsg = "Site Taranamadı: " + errStr
+			utils.LogError(sc.DB, fmt.Sprintf("Site tarama hatası: %s", errStr))
 		}
 
 		c.JSON(status, gin.H{
@@ -75,6 +83,7 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 	}
 
 	if result.ErrorMessage != "" {
+		utils.LogError(sc.DB, fmt.Sprintf("Erişim hatası: %s", result.ErrorMessage))
 		c.JSON(http.StatusBadGateway, gin.H{
 			"error": "Siteye Erişilemedi (" + torProxy + "): " + result.ErrorMessage,
 		})
@@ -83,6 +92,7 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 
 	// 3. Forum olup olmadığını kontrol et
 	if !result.IsForum {
+		utils.LogWarn(sc.DB, fmt.Sprintf("Hedef forum yapısına uymuyor: %s", req.URL))
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Site forum değil. Veri kaydedilmedi.",
 			"data":    result,
@@ -99,6 +109,7 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 	}
 
 	if err := sc.DB.Where(models.Site{URL: result.URL}).FirstOrCreate(&site).Error; err != nil {
+		utils.LogError(sc.DB, "Veritabanı kayıt hatası.")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "DB Kaydetme Hatası: " + err.Error()})
 		return
 	}
@@ -111,6 +122,8 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 		ScanDate:     time.Now(),
 	}
 	sc.DB.Create(&stats)
+
+	utils.LogSuccess(sc.DB, fmt.Sprintf("Analiz tamamlandı. %d Konu, %d İleti.", result.ThreadCount, result.PostCount))
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Forum algılandı ve başarıyla kaydedildi",

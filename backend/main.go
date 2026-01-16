@@ -6,6 +6,7 @@ import (
 	"os"
 	"scraper/controllers"
 	"scraper/models"
+	"scraper/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
@@ -25,6 +26,9 @@ func main() {
 
 	// Veritabanını Başlat
 	initDB()
+
+	// Uptime Başlat
+	utils.InitStartTime()
 
 	r := gin.Default()
 
@@ -52,9 +56,12 @@ func main() {
 		// Tarayıcı uç noktaları
 		scanCtrl := controllers.NewScanController(DB)
 		authCtrl := controllers.NewAuthController(DB)
+		statsCtrl := controllers.NewStatsController(DB)
 
 		api.POST("/scan", scanCtrl.ScanSite)
 		api.POST("/login", authCtrl.Login)
+		api.GET("/stats/general", statsCtrl.GetGeneralStats)
+		api.GET("/logs", statsCtrl.GetSystemLogs)
 	}
 
 	port := os.Getenv("PORT")
@@ -86,7 +93,7 @@ func initDB() {
 	}
 
 	// Otomatik Taşıma
-	err = DB.AutoMigrate(&models.Site{}, &models.Page{}, &models.Stats{}, &models.User{})
+	err = DB.AutoMigrate(&models.Site{}, &models.Stats{}, &models.User{}, &models.SystemLog{})
 	if err != nil {
 		log.Printf("Taşıma başarısız: %v", err)
 	} else {

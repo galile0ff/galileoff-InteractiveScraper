@@ -14,18 +14,6 @@ type Site struct {
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
-	Pages     []Page         `json:"pages,omitempty"`
-}
-
-type Page struct {
-	ID        uint      `gorm:"primaryKey" json:"id"`
-	SiteID    uint      `gorm:"index" json:"site_id"`
-	URL       string    `json:"url"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"` // Metin içeriği özeti
-	ThreadCnt int       `json:"thread_count"`
-	PostCnt   int       `json:"post_count"`
-	CreatedAt time.Time `json:"created_at"`
 }
 
 type Stats struct {

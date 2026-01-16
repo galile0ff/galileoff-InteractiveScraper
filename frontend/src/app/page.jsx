@@ -4,20 +4,20 @@ import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Login from '../components/Login';
 import Sidebar from '../components/Sidebar';
-import { motion } from 'framer-motion';
 
-// Dinamik
+// Dinamik importlar (SSR kapalı)
 const Scanner = dynamic(() => import('../components/Scanner'), { ssr: false });
-const Dashboard = dynamic(() => import('../components/Dashboard'), { ssr: false });
+const GeneralDashboard = dynamic(() => import('../components/GeneralDashboard'), { ssr: false });
+const HistoryPage = dynamic(() => import('../components/History'), { ssr: false });
+const SettingsPage = dynamic(() => import('../components/Settings'), { ssr: false });
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('scanner');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [scanResult, setScanResult] = useState(null);
 
   useEffect(() => {
-    // Yüklemede yerel depolamayı kontrol et (Sadece İstemci Tarafı)
     const token = localStorage.getItem('authToken');
     if (token) {
       setIsAuthenticated(true);
@@ -34,7 +34,7 @@ export default function Home() {
     localStorage.removeItem('authToken');
     setIsAuthenticated(false);
     setScanResult(null);
-    setActiveTab('scanner');
+    setActiveTab('dashboard');
   };
 
   const handleScanComplete = (data) => {
@@ -42,68 +42,22 @@ export default function Home() {
   };
 
   if (isLoading) {
-    return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">Yükleniyor...</div>;
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center font-mono">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+          <span className="text-emerald-500 text-xs tracking-widest animate-pulse">BAĞLANTI KURULUYOR...</span>
+        </div>
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
     return <Login onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // --- Görünümler ---
-
-  const ScannerView = () => (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="max-w-4xl mx-auto w-full"
-    >
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-white mb-2">Canlı Analiz</h2>
-        <p className="text-gray-400">Tor ağı üzerindeki bir forum adresini tarayıp analiz edin.</p>
-      </div>
-
-      <Scanner onScanComplete={handleScanComplete} />
-
-      {scanResult && <Dashboard data={scanResult} />}
-    </motion.div>
-  );
-
-  const HistoryView = () => (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="max-w-4xl mx-auto w-full"
-    >
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-white mb-2">Tarama Geçmişi</h2>
-        <p className="text-gray-400">Daha önce yapılan analizlerin kayıtları.</p>
-      </div>
-
-      <div className="p-12 text-center border border-dashed border-gray-700 rounded-xl bg-slate-800/30">
-        <p className="text-gray-500">Henüz geçmişte kayıt yok.</p>
-      </div>
-    </motion.div>
-  );
-
-  const SettingsView = () => (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="max-w-4xl mx-auto w-full"
-    >
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-white mb-2">Ayarlar</h2>
-        <p className="text-gray-400">Sistem yapılandırması ve kullanıcı tercihleri.</p>
-      </div>
-
-      <div className="p-12 text-center border border-dashed border-gray-700 rounded-xl bg-slate-800/30">
-        <p className="text-gray-500">Ayarlar panelini yakında geliştiricem</p>
-      </div>
-    </motion.div>
-  );
-
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex overflow-hidden">
+    <div className="min-h-screen bg-black text-white flex overflow-hidden selection:bg-emerald-500/30">
       {/* Yan Menü */}
       <Sidebar
         activeTab={activeTab}
@@ -112,13 +66,15 @@ export default function Home() {
       />
 
       {/* Ana İçerik Alanı */}
-      <main className="flex-1 ml-64 p-8 relative overflow-y-auto h-screen">
-        {/* Arka Plan */}
-        <div className="fixed top-[-20%] right-[-10%] w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none" />
+      <main className="flex-1 ml-64 p-8 relative overflow-y-auto h-screen scrollbar-hide">
+        {/* Arka Plan Efekti */}
+        <div className="fixed top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900/50 via-black to-black pointer-events-none -z-10" />
+        <div className="fixed top-[-20%] right-[-10%] w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none -z-10" />
 
-        {activeTab === 'scanner' && <ScannerView />}
-        {activeTab === 'history' && <HistoryView />}
-        {activeTab === 'settings' && <SettingsView />}
+        {activeTab === 'dashboard' && <GeneralDashboard />}
+        {activeTab === 'scanner' && <Scanner onScanComplete={handleScanComplete} />}
+        {activeTab === 'history' && <HistoryPage />}
+        {activeTab === 'settings' && <SettingsPage />}
       </main>
     </div>
   );

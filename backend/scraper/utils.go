@@ -28,13 +28,14 @@ func NormalizeURL(input string) string {
 		return input
 	}
 
-	if !strings.Contains(host, ".") {
-		newHost := host + ".onion"
+	// 1. Sondaki tüm noktaları temizle (örn: site.. -> site)
+	host = strings.TrimRight(host, ".")
 
-		// URL'yi yeniden oluştur
-		u.Host = newHost
-		return u.String()
+	// 2. Eğer .onion ile bitmiyorsa, .onion ekle
+	if !strings.HasSuffix(host, ".onion") {
+		host = host + ".onion"
 	}
 
-	return input
+	u.Host = host
+	return u.String()
 }

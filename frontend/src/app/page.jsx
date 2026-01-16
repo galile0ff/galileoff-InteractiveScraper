@@ -21,17 +21,32 @@ export default function Home() {
     const token = localStorage.getItem('authToken');
     if (token) {
       setIsAuthenticated(true);
+      // Sayfa yenilendiğinde son kalınan sekmeyi aç
+      const savedTab = localStorage.getItem('activeTab');
+      if (savedTab) {
+        setActiveTab(savedTab);
+      }
     }
     setIsLoading(false);
   }, []);
 
+  // Sekme değiştiğinde kaydet
+  useEffect(() => {
+    if (isAuthenticated) {
+      localStorage.setItem('activeTab', activeTab);
+    }
+  }, [activeTab, isAuthenticated]);
+
   const handleLoginSuccess = (token) => {
     localStorage.setItem('authToken', token);
+    localStorage.setItem('activeTab', 'dashboard'); // Login olunca dashboard'a git
+    setActiveTab('dashboard');
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('activeTab'); // Çıkış yapınca sekme bilgisini sil
     setIsAuthenticated(false);
     setScanResult(null);
     setActiveTab('dashboard');

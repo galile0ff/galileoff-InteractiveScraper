@@ -9,6 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
+	"github.com/joho/godotenv"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -16,6 +18,11 @@ import (
 var DB *gorm.DB
 
 func main() {
+	// .env dosyasını yükle
+	if err := godotenv.Load(); err != nil {
+		log.Println("Uyarı: .env dosyası bulunamadı")
+	}
+
 	// Veritabanını Başlat
 	initDB()
 
@@ -44,7 +51,7 @@ func main() {
 
 		// Tarayıcı uç noktaları
 		scanCtrl := controllers.NewScanController(DB)
-		authCtrl := controllers.NewAuthController()
+		authCtrl := controllers.NewAuthController(DB)
 
 		api.POST("/scan", scanCtrl.ScanSite)
 		api.POST("/login", authCtrl.Login)
@@ -79,10 +86,26 @@ func initDB() {
 	}
 
 	// Otomatik Taşıma
-	err = DB.AutoMigrate(&models.Site{}, &models.Page{}, &models.Stats{})
+	err = DB.AutoMigrate(&models.Site{}, &models.Page{}, &models.Stats{}, &models.User{})
 	if err != nil {
 		log.Printf("Taşıma başarısız: %v", err)
 	} else {
 		log.Println("Veritabanı bağlandı ve taşındı.")
+	}
+
+	seedUsers()
+}
+
+func seedUsers() {
+	var count int64
+	DB.Model(&models.User{}).Count(&count)
+	if count == 0 {
+		passwordHash, _ := bcrypt.GenerateFromPassword([]byte("galileoff"), bcrypt.DefaultCost)
+		user := models.User{
+			Username: "admin",
+			Password: string(passwordHash),
+		}
+		DB.Create(&user)
+		log.Println("Admin kullanıcısı oluşturuldu.")
 	}
 }

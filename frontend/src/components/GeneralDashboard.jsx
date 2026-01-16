@@ -282,8 +282,8 @@ export default function GeneralDashboard() {
                         <div className="space-y-3">
                             <SystemMetric label="CPU KULLANIMI" value={`${stats.system_status?.cpu || 0}%`} icon={Cpu} color="text-blue-500" />
                             <SystemMetric label="BELLEK" value={`${stats.system_status?.memory || 0}%`} icon={HardDrive} color="text-purple-500" />
-                            <SystemMetric label="AĞ GECİKMESİ" value="24ms" icon={Wifi} color="text-emerald-500" />
-                            <SystemMetric label="UPTIME" value={stats.system_status?.uptime || "0h"} icon={Zap} color="text-amber-500" />
+                            <SystemMetric label="AĞ GECİKMESİ" value="İyi" icon={Wifi} color="text-emerald-500" />
+                            <SystemMetric label="BACKEND ZAMANI" value={stats.system_status?.uptime || "0h"} icon={Zap} color="text-amber-500" />
                         </div>
                     </div>
 

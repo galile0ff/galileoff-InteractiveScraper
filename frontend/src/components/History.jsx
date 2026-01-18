@@ -71,7 +71,7 @@ export default function HistoryPage() {
                         <tr className="bg-zinc-900/80 border-b border-zinc-800 text-xs text-zinc-400 uppercase tracking-wider">
                             <th className="py-4 px-6 font-medium">HEDEF URL</th>
                             <th className="py-4 px-6 font-medium">TARİH</th>
-                            <th className="py-4 px-6 font-medium">TÜR</th>
+                            <th className="py-4 px-6 font-medium">ETİKET</th>
                             <th className="py-4 px-6 font-medium">VERİ</th>
                             <th className="py-4 px-6 font-medium text-right">DURUM</th>
                             <th className="py-4 px-6 font-medium text-right">İŞLEM</th>
@@ -98,11 +98,17 @@ export default function HistoryPage() {
                                         </div>
                                     </td>
                                     <td className="py-4 px-6">
-                                        <span className={`text-[11px] px-2 py-1 border ${item.is_forum ? 'border-amber-500/20 text-amber-500 bg-amber-500/5' :
-                                            'border-blue-500/20 text-blue-500 bg-blue-500/5'
-                                            }`}>
-                                            {item.is_forum ? 'FORUM' : 'WEB'}
-                                        </span>
+                                        {item.category ? (
+                                            <span className="text-[10px] px-2 py-1 rounded border border-purple-500/30 bg-purple-500/10 text-purple-400 uppercase tracking-wide font-bold">
+                                                [{item.category}]
+                                            </span>
+                                        ) : (
+                                            <span className={`text-[11px] px-2 py-1 border ${item.is_forum ? 'border-amber-500/20 text-amber-500 bg-amber-500/5' :
+                                                'border-blue-500/20 text-blue-500 bg-blue-500/5'
+                                                }`}>
+                                                {item.is_forum ? 'FORUM' : 'WEB'}
+                                            </span>
+                                        )}
                                     </td>
                                     <td className="py-4 px-6 text-xs text-zinc-400">
                                         <div className="flex gap-3">
@@ -177,7 +183,14 @@ export default function HistoryPage() {
                                         {details.threads.map((thread) => (
                                             <div key={thread.id} className="p-6 hover:bg-zinc-900/50 transition-colors">
                                                 <div className="flex justify-between items-start mb-4">
-                                                    <h3 className="text-md font-bold text-emerald-400 mb-1">{thread.title}</h3>
+                                                    <h3 className="text-md font-bold text-emerald-400 mb-1 flex items-center gap-2">
+                                                        {thread.title}
+                                                        {thread.category && (
+                                                            <span className="text-[10px] px-2 py-0.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 uppercase tracking-wide">
+                                                                {thread.category}
+                                                            </span>
+                                                        )}
+                                                    </h3>
                                                     <span className="text-xs text-zinc-400 border border-zinc-800 px-2 py-1 rounded bg-zinc-950">
                                                         {thread.date}
                                                     </span>

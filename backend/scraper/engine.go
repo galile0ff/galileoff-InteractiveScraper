@@ -3,9 +3,12 @@ package scraper
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"net"
 	"strings"
 	"time"
+
+	"scraper/models"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly/v2"
@@ -13,32 +16,34 @@ import (
 )
 
 type ScrapeResult struct {
-	URL          string
-	IsForum      bool
-	Title        string
-	ThreadCount  int
-	PostCount    int
-	ErrorMessage string
-	Threads      []ThreadData
+	URL          string       `json:"url"`
+	IsForum      bool         `json:"is_forum"`
+	Title        string       `json:"title"`
+	ThreadCount  int          `json:"thread_count"`
+	PostCount    int          `json:"post_count"`
+	ErrorMessage string       `json:"error_message"`
+	Threads      []ThreadData `json:"threads"`
+	UserAgent    string       `json:"user_agent"`
 }
 
 type ThreadData struct {
-	Title   string
-	Link    string
-	Author  string
-	Date    string
-	Content string
-	Posts   []PostData
+	Title    string     `json:"title"`
+	Link     string     `json:"link"`
+	Author   string     `json:"author"`
+	Date     string     `json:"date"`
+	Content  string     `json:"content"`
+	Category string     `json:"category"` // Tespit edilen kategori
+	Posts    []PostData `json:"posts"`
 }
 
 type PostData struct {
-	Author  string
-	Content string
-	Date    string
+	Author  string `json:"author"`
+	Content string `json:"content"`
+	Date    string `json:"date"`
 }
 
 // AnalyzeSite, hedef siteyi tarar ve sonuçları döndürür.
-func AnalyzeSite(targetURL string, torProxy string) (*ScrapeResult, error) {
+func AnalyzeSite(targetURL string, torProxy string, keywords []models.Keyword, userAgents []string) (*ScrapeResult, error) {
 	var result *ScrapeResult
 	var err error
 	maxRetries := 3
@@ -53,7 +58,7 @@ func AnalyzeSite(targetURL string, torProxy string) (*ScrapeResult, error) {
 			log.Printf("Bağlantı başlatılıyor: %s", targetURL)
 		}
 
-		result, err = performScan(targetURL, torProxy)
+		result, err = performScan(targetURL, torProxy, keywords, userAgents)
 
 		// Başarılıysa veya kritik olmayan bir hata varsa dön
 		if err == nil {
@@ -75,7 +80,7 @@ func AnalyzeSite(targetURL string, torProxy string) (*ScrapeResult, error) {
 	return nil, fmt.Errorf("Maksimum deneme sayısına ulaşıldı. Son hata: %v", err)
 }
 
-func performScan(targetURL string, torProxy string) (*ScrapeResult, error) {
+func performScan(targetURL string, torProxy string, keywords []models.Keyword, userAgents []string) (*ScrapeResult, error) {
 	c := colly.NewCollector(
 		colly.AllowURLRevisit(),
 	)
@@ -83,8 +88,14 @@ func performScan(targetURL string, torProxy string) (*ScrapeResult, error) {
 	// Zaman aşımını ayarla
 	c.SetRequestTimeout(15 * time.Second)
 
-	// User Agent döndür
+	// User Agent Ayarla
 	c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+
+	if len(userAgents) > 0 {
+		rand.Seed(time.Now().UnixNano())
+		c.UserAgent = userAgents[rand.Intn(len(userAgents))]
+		log.Printf("Random UA Seçildi: %s", c.UserAgent)
+	}
 
 	// Proxy Yapılandır
 	if torProxy != "" {
@@ -162,7 +173,12 @@ func performScan(targetURL string, torProxy string) (*ScrapeResult, error) {
 
 		// 1. İletileri Tespit Et
 		// Yaygın forum yazılımlarının kullandığı kapsayıcı sınıflar
-		postSelectors := []string{".post", ".message", ".entry", "article", ".comment", ".post-container", "div[id^='post']"}
+		postSelectors := []string{
+			".post", ".message", ".entry", "article", ".comment", ".post-container", "div[id^='post']",
+			".postbit", ".post-content", ".message-content", ".post_body", ".entry-content",
+			".ItemBody", ".CommentBody", ".lia-message-body-content", ".js-post__content-text",
+			".cooked", ".topic-body", ".post-message",
+		}
 
 		var posts []PostData
 
@@ -216,12 +232,13 @@ func performScan(targetURL string, torProxy string) (*ScrapeResult, error) {
 
 			result.Threads = []ThreadData{
 				{
-					Title:   result.Title, // Sayfa başlığı konu başlığıdır
-					Link:    result.URL,
-					Author:  threadAuthor,
-					Date:    threadDate,
-					Content: threadContent,
-					Posts:   posts, // Tüm postları ekle
+					Title:    result.Title, // Sayfa başlığı konu başlığıdır
+					Link:     result.URL,
+					Author:   threadAuthor,
+					Date:     threadDate,
+					Content:  threadContent,
+					Category: detectCategory(threadContent+" "+result.Title, keywords),
+					Posts:    posts, // Tüm postları ekle
 				},
 			}
 			result.ThreadCount = 1
@@ -233,10 +250,11 @@ func performScan(targetURL string, torProxy string) (*ScrapeResult, error) {
 					title := strings.TrimSpace(s.Find(".title, .subject, h3, a").First().Text())
 					if title != "" {
 						result.Threads = append(result.Threads, ThreadData{
-							Title:  title,
-							Link:   result.URL, // Link ayrıştırması daha karmaşık olabilir
-							Author: "Unknown",
-							Date:   time.Now().Format("2006-01-02"),
+							Title:    title,
+							Link:     result.URL,
+							Author:   "Unknown",
+							Date:     time.Now().Format("2006-01-02"),
+							Category: detectCategory(title, keywords),
 						})
 					}
 				})
@@ -253,12 +271,13 @@ func performScan(targetURL string, torProxy string) (*ScrapeResult, error) {
 
 					result.Threads = []ThreadData{
 						{
-							Title:   result.Title,
-							Link:    result.URL,
-							Author:  "System (Fallback)",
-							Date:    time.Now().Format("2006-01-02 15:04"),
-							Content: "Otomatik ayrıştırma başarısız oldu. Ham içerik:\n\n" + rawContent,
-							Posts:   []PostData{},
+							Title:    result.Title,
+							Link:     result.URL,
+							Author:   "System (Fallback)",
+							Date:     time.Now().Format("2006-01-02 15:04"),
+							Content:  "Otomatik ayrıştırma başarısız oldu. Ham içerik:\n\n" + rawContent,
+							Category: detectCategory(result.Title, keywords),
+							Posts:    []PostData{},
 						},
 					}
 					result.ThreadCount = 1
@@ -298,6 +317,7 @@ func performScan(targetURL string, torProxy string) (*ScrapeResult, error) {
 		return nil, err
 	}
 
+	result.UserAgent = c.UserAgent
 	return result, nil
 }
 
@@ -327,4 +347,18 @@ func IsProxyConnectionError(err error) bool {
 	return strings.Contains(msg, "connection refused") ||
 		strings.Contains(msg, "proxyconnect tcp") ||
 		strings.Contains(msg, "dial tcp 127.0.0.1")
+}
+
+// detectCategory: Metin içinde anahtar kelime tarayarak kategori belirler
+func detectCategory(text string, keywords []models.Keyword) string {
+	textLower := strings.ToLower(text)
+
+	// En uzun kelimeden başlayarak eşleşme ara
+	for _, kw := range keywords {
+		if strings.Contains(textLower, strings.ToLower(kw.Word)) {
+			return kw.Category
+		}
+	}
+
+	return "Genel"
 }

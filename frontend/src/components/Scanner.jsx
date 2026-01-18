@@ -38,10 +38,16 @@ export default function Scanner({ onScanComplete, onChangeTab }) {
         setSuccess(null);
 
         try {
-            const res = await axios.post('http://localhost:8080/api/scan', { url });
+            const randomUA = localStorage.getItem('settings_randomUA') === 'true';
+            const res = await axios.post('http://localhost:8080/api/scan', { url, random_ua: randomUA });
 
             if (res.data.saved) {
-                setSuccess("Hedef başarıyla analiz edildi ve veritabanına işlendi.");
+                const category = res.data.data.threads && res.data.data.threads.length > 0 ? res.data.data.threads[0].category : 'Belirsiz';
+                let successMsg = `Hedef başarıyla analiz edildi [${category}] ve veritabanına işlendi.`;
+                if (randomUA && res.data.data.user_agent) {
+                    successMsg += ` (UA: ${res.data.data.user_agent})`;
+                }
+                setSuccess(successMsg);
                 onScanComplete(res.data.data);
                 setUrl(''); // Inputu temizle
             } else {

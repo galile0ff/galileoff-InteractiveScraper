@@ -70,6 +70,17 @@ func main() {
 
 		// Sistem İşlemleri
 		api.DELETE("/system/reset-db", settingsCtrl.ResetDatabase)
+
+		// Ayarlar (Keywords)
+		api.GET("/settings/keywords", settingsCtrl.GetKeywords)
+		api.POST("/settings/keywords", settingsCtrl.AddKeyword)
+		api.PUT("/settings/keywords/:id", settingsCtrl.UpdateKeyword)
+		api.DELETE("/settings/keywords/:id", settingsCtrl.DeleteKeyword)
+
+		// Ayarlar (User Agents)
+		api.GET("/settings/user-agents", settingsCtrl.GetUserAgents)
+		api.POST("/settings/user-agents", settingsCtrl.AddUserAgent)
+		api.DELETE("/settings/user-agents/:id", settingsCtrl.DeleteUserAgent)
 	}
 
 	port := os.Getenv("PORT")
@@ -101,7 +112,7 @@ func initDB() {
 	}
 
 	// Otomatik Taşıma
-	err = DB.AutoMigrate(&models.Site{}, &models.Stats{}, &models.User{}, &models.SystemLog{}, &models.Thread{}, &models.Post{})
+	err = DB.AutoMigrate(&models.Site{}, &models.Stats{}, &models.User{}, &models.SystemLog{}, &models.Thread{}, &models.Post{}, &models.Keyword{}, &models.UserAgent{})
 	if err != nil {
 		log.Printf("Taşıma başarısız: %v", err)
 	} else {

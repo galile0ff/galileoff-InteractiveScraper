@@ -14,7 +14,8 @@ type Thread struct {
 	Link      string         `json:"link"`
 	Author    string         `json:"author"`
 	Date      string         `json:"date"`
-	Content   string         `json:"content"` // Ana konu içeriği
+	Content   string         `json:"content"`  // Ana konu içeriği
+	Category  string         `json:"category"` // Otomatik belirlenen kategori
 	Posts     []Post         `json:"posts" gorm:"foreignKey:ThreadID"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`

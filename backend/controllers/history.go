@@ -27,13 +27,14 @@ func (ctrl *HistoryController) GetHistory(c *gin.Context) {
 		LastScan     time.Time `json:"last_scan"` // Stats.ScanDate
 		TotalThreads int       `json:"total_threads"`
 		TotalPosts   int       `json:"total_posts"`
+		Category     string    `json:"category"`
 	}
 
 	var history []HistoryItem
 
 	// Stats tablosunu ana tablo olarak kullan
 	ctrl.DB.Table("stats").
-		Select("stats.id, sites.url, sites.is_forum, stats.scan_date as last_scan, stats.total_threads, stats.total_posts").
+		Select("stats.id, sites.url, sites.is_forum, stats.scan_date as last_scan, stats.total_threads, stats.total_posts, (SELECT category FROM threads WHERE threads.stats_id = stats.id LIMIT 1) as category").
 		Joins("left join sites on stats.site_id = sites.id").
 		Order("stats.scan_date desc").
 		Scan(&history)

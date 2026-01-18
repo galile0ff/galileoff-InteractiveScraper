@@ -14,7 +14,8 @@ import (
 )
 
 type ScanRequest struct {
-	URL string `json:"url" binding:"required"`
+	URL      string `json:"url" binding:"required"`
+	RandomUA bool   `json:"random_ua"`
 }
 
 type ScanController struct {
@@ -49,7 +50,20 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 	}
 	utils.LogInfo(sc.DB, fmt.Sprintf("Proxy bağlantısı kuruldu: %s", torProxy))
 
-	result, err := scraper.AnalyzeSite(req.URL, torProxy)
+	// Keywordleri Getir
+	var keywords []models.Keyword
+	sc.DB.Find(&keywords)
+
+	var userAgents []string
+	if req.RandomUA {
+		var uaList []models.UserAgent
+		sc.DB.Find(&uaList)
+		for _, ua := range uaList {
+			userAgents = append(userAgents, ua.UserAgent)
+		}
+	}
+
+	result, err := scraper.AnalyzeSite(req.URL, torProxy, keywords, userAgents)
 	if err != nil {
 		sc.handleScanError(c, err, torProxy)
 		return
@@ -117,7 +131,7 @@ func (sc *ScanController) saveToDB(result *scraper.ScrapeResult) {
 		for _, t := range threads {
 			thread := models.Thread{
 				SiteID: siteID, StatsID: statsID, Title: t.Title, Link: t.Link,
-				Author: t.Author, Date: t.Date, Content: t.Content,
+				Author: t.Author, Date: t.Date, Content: t.Content, Category: t.Category,
 			}
 			sc.DB.Create(&thread)
 			for i, p := range t.Posts {

@@ -10,7 +10,8 @@ import {
     Globe, FileText, MessageSquare, Database, Activity, Target, Shield,
     Server, Cpu, HardDrive, Wifi, Zap, Lock, Terminal,
     EyeOff,
-    LayoutDashboard
+    LayoutDashboard,
+    Clock
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -239,7 +240,7 @@ export default function GeneralDashboard() {
                                 <thead>
                                     <tr className="border-b border-zinc-800 text-xs text-zinc-400 uppercase tracking-wider">
                                         <th className="py-3 font-medium">HEDEF URL</th>
-                                        <th className="py-3 font-medium">TÜR</th>
+                                        <th className="py-3 font-medium">ETİKET</th>
                                         <th className="py-3 font-medium text-right">DURUM</th>
                                     </tr>
                                 </thead>
@@ -253,9 +254,22 @@ export default function GeneralDashboard() {
                                                 </div>
                                             </td>
                                             <td className="py-3">
-                                                <span className={`text-[11px] px-2 py-0.5 border ${site.is_forum ? 'border-amber-500/30 text-amber-500 bg-amber-500/5' : 'border-blue-500/30 text-blue-500 bg-blue-500/5'}`}>
-                                                    {site.is_forum ? 'FORUM' : 'WEB'}
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    {site.source === 'watchlist' && (
+                                                        <span className="text-[10px] px-2 py-0.5 rounded border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 uppercase tracking-wide font-bold flex items-center gap-1">
+                                                            <Clock size={9} /> WATCHLIST
+                                                        </span>
+                                                    )}
+                                                    {site.category ? (
+                                                        <span className="text-[10px] px-2 py-1 rounded border border-purple-500/30 bg-purple-500/10 text-purple-400 uppercase tracking-wide font-bold">
+                                                            [{site.category}]
+                                                        </span>
+                                                    ) : (
+                                                        <span className={`text-[11px] px-2 py-0.5 border ${site.is_forum ? 'border-amber-500/30 text-amber-500 bg-amber-500/5' : 'border-blue-500/30 text-blue-500 bg-blue-500/5'}`}>
+                                                            {site.is_forum ? 'FORUM' : 'WEB'}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </td>
                                             <td className="py-3 text-right">
                                                 <span className="text-[11px] text-emerald-500 flex items-center justify-end gap-1">

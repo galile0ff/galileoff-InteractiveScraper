@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { History, FileText, Calendar, X, MessageSquare, User } from 'lucide-react';
+import { History, FileText, Calendar, X, MessageSquare, User, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
@@ -46,7 +46,7 @@ export default function HistoryPage() {
     };
 
     return (
-        <div className="w-full max-w-5xl mx-auto pt-10 font-mono relative">
+        <div className="w-full max-w-7xl mx-auto pt-10 font-mono relative">
             {/* Başlık */}
             <div className="flex items-center justify-between mb-8">
                 <div>
@@ -64,7 +64,7 @@ export default function HistoryPage() {
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="glass-panel overflow-x-auto rounded-xl"
+                className="glass-panel rounded-xl"
             >
                 <table className="w-full text-left border-collapse">
                     <thead>
@@ -98,17 +98,24 @@ export default function HistoryPage() {
                                         </div>
                                     </td>
                                     <td className="py-4 px-6">
-                                        {item.category ? (
-                                            <span className="text-[10px] px-2 py-1 rounded border border-purple-500/30 bg-purple-500/10 text-purple-400 uppercase tracking-wide font-bold">
-                                                [{item.category}]
-                                            </span>
-                                        ) : (
-                                            <span className={`text-[11px] px-2 py-1 border ${item.is_forum ? 'border-amber-500/20 text-amber-500 bg-amber-500/5' :
-                                                'border-blue-500/20 text-blue-500 bg-blue-500/5'
-                                                }`}>
-                                                {item.is_forum ? 'FORUM' : 'WEB'}
-                                            </span>
-                                        )}
+                                        <div className="flex items-center gap-2">
+                                            {item.source === 'watchlist' && (
+                                                <span className="text-[10px] px-2 py-1 rounded border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 uppercase tracking-wide font-bold flex items-center gap-1">
+                                                    <Clock size={10} /> WATCHLIST
+                                                </span>
+                                            )}
+                                            {item.category ? (
+                                                <span className="text-[10px] px-2 py-1 rounded border border-purple-500/30 bg-purple-500/10 text-purple-400 uppercase tracking-wide font-bold">
+                                                    [{item.category}]
+                                                </span>
+                                            ) : (
+                                                <span className={`text-[11px] px-2 py-1 border ${item.is_forum ? 'border-amber-500/20 text-amber-500 bg-amber-500/5' :
+                                                    'border-blue-500/20 text-blue-500 bg-blue-500/5'
+                                                    }`}>
+                                                    {item.is_forum ? 'FORUM' : 'WEB'}
+                                                </span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="py-4 px-6 text-xs text-zinc-400">
                                         <div className="flex gap-3">

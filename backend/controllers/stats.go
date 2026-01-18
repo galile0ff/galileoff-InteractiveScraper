@@ -7,6 +7,7 @@ import (
 	"scraper/models"
 	"scraper/scraper"
 	"scraper/utils"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -29,12 +30,22 @@ func (ctrl *StatsController) GetGeneralStats(c *gin.Context) {
 		return
 	}
 
-	// Son 5 Site
-	var lastSites []models.Site
-	if err := ctrl.DB.Order("created_at desc").Limit(5).Find(&lastSites).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch recent sites"})
-		return
+	// Son 7 Tarama
+	type RecentScan struct {
+		ID       uint      `json:"id"`
+		URL      string    `json:"url"`
+		IsForum  bool      `json:"is_forum"`
+		Source   string    `json:"source"`
+		Category string    `json:"category"`
+		ScanDate time.Time `json:"scan_date"`
 	}
+	var recentScans []RecentScan
+	ctrl.DB.Table("stats").
+		Select("stats.id, sites.url, sites.is_forum, stats.source, stats.scan_date, (SELECT category FROM threads WHERE threads.stats_id = stats.id LIMIT 1) as category").
+		Joins("left join sites on sites.id = stats.site_id").
+		Order("stats.scan_date desc").
+		Limit(7).
+		Scan(&recentScans)
 
 	// --- İçerik Hacmi (Son 10 Site) ---
 	type ContentStat struct {
@@ -116,7 +127,7 @@ func (ctrl *StatsController) GetGeneralStats(c *gin.Context) {
 		"page_count":   pageCount,           // İndeksli İçerik
 		"thread_count": totals.TotalThreads, // Konu Başlığı
 		"post_count":   totals.TotalPosts,   // Analiz Edilen Veri
-		"recent_sites": lastSites,
+		"recent_sites": recentScans,         // Son taramalar
 
 		"content_volume": contentVolume,
 		"distribution": gin.H{

@@ -21,6 +21,7 @@ type Stats struct {
 	ID           uint      `gorm:"primaryKey" json:"id"`
 	SiteID       uint      `gorm:"index" json:"site_id"`
 	Site         Site      `json:"site" gorm:"foreignKey:SiteID"`
+	Source       string    `gorm:"default:'manual'" json:"source"` // manual veya watchlist
 	TotalThreads int       `json:"total_threads"`
 	TotalPosts   int       `json:"total_posts"`
 	ScanDate     time.Time `json:"scan_date"`

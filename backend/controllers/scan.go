@@ -121,10 +121,23 @@ func (sc *ScanController) processScanResult(c *gin.Context, result *scraper.Scra
 
 // Veritabanına Kayıt
 func (sc *ScanController) saveToDB(result *scraper.ScrapeResult) {
-	site := models.Site{URL: result.URL, IsForum: true, LastScan: time.Now()}
-	sc.DB.Where(models.Site{URL: result.URL}).FirstOrCreate(&site)
+	site := models.Site{
+		URL:      result.URL,
+		IsForum:  true,
+		LastScan: time.Now(),
+	}
+	sc.DB.Where(models.Site{URL: result.URL}).Assign(models.Site{
+		IsForum:  true,
+		LastScan: time.Now(),
+	}).FirstOrCreate(&site)
 
-	stats := models.Stats{SiteID: site.ID, TotalThreads: result.ThreadCount, TotalPosts: result.PostCount, ScanDate: time.Now()}
+	stats := models.Stats{
+		SiteID:       site.ID,
+		Source:       "manual", // Manuel tarama
+		TotalThreads: result.ThreadCount,
+		TotalPosts:   result.PostCount,
+		ScanDate:     time.Now(),
+	}
 	sc.DB.Create(&stats)
 
 	go func(siteID, statsID uint, threads []scraper.ThreadData) {

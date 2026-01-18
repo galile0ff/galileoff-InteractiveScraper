@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Settings, Shield, Server, Database, Save, Power, Eye, Lock, Edit2, Trash2, Plus, X, Check, Tag, RefreshCw, Layers } from 'lucide-react';
+import { Settings, Shield, Server, Database, Save, Power, Eye, Lock, Edit2, Trash2, Plus, X, Check, Tag, RefreshCw, Layers, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 function KeywordManager() {
@@ -74,13 +74,10 @@ function KeywordManager() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8 glass-panel overflow-hidden shadow-2xl"
         >
-            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+            <div className="p-6 border-b border-white/5 bg-white/[0.02]">
                 <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
                     <Tag size={16} /> KATEGORİ & KEYWORD YÖNETİMİ
                 </h2>
-                <button onClick={fetchKeywords} className="text-zinc-500 hover:text-white transition-colors">
-                    <RefreshCw size={16} />
-                </button>
             </div>
 
             <div className="p-6">
@@ -190,6 +187,8 @@ function UserAgentManager() {
     const [userAgents, setUserAgents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [newUA, setNewUA] = useState('');
+    const [editingId, setEditingId] = useState(null);
+    const [editForm, setEditForm] = useState('');
 
     useEffect(() => {
         fetchUserAgents();
@@ -226,19 +225,36 @@ function UserAgentManager() {
         }
     };
 
+    const startEdit = (ua) => {
+        setEditingId(ua.ID);
+        setEditForm(ua.user_agent);
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        setEditForm('');
+    };
+
+    const saveEdit = async () => {
+        try {
+            await axios.put(`http://localhost:8080/api/settings/user-agents/${editingId}`, { user_agent: editForm });
+            setEditingId(null);
+            fetchUserAgents();
+        } catch (error) {
+            console.error("Güncelleme hatası", error);
+        }
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-8 glass-panel overflow-hidden shadow-2xl"
         >
-            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+            <div className="p-6 border-b border-white/5 bg-white/[0.02]">
                 <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
                     <Layers size={16} /> USER AGENT YÖNETİMİ
                 </h2>
-                <button onClick={fetchUserAgents} className="text-zinc-500 hover:text-white transition-colors">
-                    <RefreshCw size={16} />
-                </button>
             </div>
 
             <div className="p-6">
@@ -250,10 +266,32 @@ function UserAgentManager() {
                     ) : (
                         userAgents.map((ua) => (
                             <div key={ua.ID} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5 group hover:border-white/20 transition-all hover:bg-white/10">
-                                <span className="text-xs text-zinc-300 font-mono break-all">{ua.user_agent}</span>
-                                <button onClick={() => handleDelete(ua.ID)} className="p-2 hover:bg-red-900/20 rounded text-zinc-600 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
-                                    <Trash2 size={14} />
-                                </button>
+                                {editingId === ua.ID ? (
+                                    // Düzenleme Modu
+                                    <div className="flex-1 flex gap-2 items-center">
+                                        <input
+                                            value={editForm}
+                                            onChange={e => setEditForm(e.target.value)}
+                                            className="flex-1 bg-black/80 border border-zinc-600 rounded px-2 py-1 text-xs text-white font-mono"
+                                            placeholder="Mozilla/5.0..."
+                                        />
+                                        <button onClick={saveEdit} className="p-1 hover:text-emerald-500 text-zinc-400"><Check size={14} /></button>
+                                        <button onClick={cancelEdit} className="p-1 hover:text-red-500 text-zinc-400"><X size={14} /></button>
+                                    </div>
+                                ) : (
+                                    // Görüntüleme Modu
+                                    <>
+                                        <span className="text-xs text-zinc-300 font-mono break-all">{ua.user_agent}</span>
+                                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button onClick={() => startEdit(ua)} className="p-2 hover:bg-zinc-800 rounded text-zinc-400 hover:text-white transition-colors">
+                                                <Edit2 size={14} />
+                                            </button>
+                                            <button onClick={() => handleDelete(ua.ID)} className="p-2 hover:bg-red-900/20 rounded text-zinc-600 hover:text-red-500 transition-colors">
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         ))
                     )}
@@ -283,10 +321,210 @@ function UserAgentManager() {
     );
 }
 
+function WatchlistManager() {
+    const [watchlist, setWatchlist] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [newWatch, setNewWatch] = useState({ url: '', interval: '60', description: '' });
+    const [editingId, setEditingId] = useState(null);
+    const [editForm, setEditForm] = useState({ url: '', interval: '', description: '' });
+
+    useEffect(() => {
+        fetchWatchlist();
+    }, []);
+
+    const fetchWatchlist = async () => {
+        try {
+            const res = await axios.get('http://localhost:8080/api/settings/watchlist');
+            setWatchlist(res.data);
+            setLoading(false);
+        } catch (error) {
+            console.error("Watchlist yüklenemedi", error);
+            setLoading(false);
+        }
+    };
+
+    const handleAdd = async () => {
+        if (!newWatch.url || !newWatch.interval) return;
+        try {
+            await axios.post('http://localhost:8080/api/settings/watchlist', {
+                url: newWatch.url,
+                interval_minutes: parseInt(newWatch.interval),
+                description: newWatch.description
+            });
+            setNewWatch({ url: '', interval: '60', description: '' });
+            fetchWatchlist();
+        } catch (error) {
+            console.error("Ekleme hatası", error);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:8080/api/settings/watchlist/${id}`);
+            fetchWatchlist();
+        } catch (error) {
+            console.error("Silme hatası", error);
+        }
+    };
+
+    const startEdit = (w) => {
+        setEditingId(w.id);
+        setEditForm({ url: w.url, interval: w.interval_minutes.toString(), description: w.description || '' });
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        setEditForm({ url: '', interval: '', description: '' });
+    };
+
+    const saveEdit = async () => {
+        try {
+            await axios.put(`http://localhost:8080/api/settings/watchlist/${editingId}`, {
+                url: editForm.url,
+                interval_minutes: parseInt(editForm.interval),
+                description: editForm.description
+            });
+            setEditingId(null);
+            fetchWatchlist();
+        } catch (error) {
+            console.error("Güncelleme hatası", error);
+        }
+    };
+
+    const formatInterval = (minutes) => {
+        if (minutes < 60) return `${minutes} dakika`;
+        if (minutes === 60) return '1 saat';
+        if (minutes < 1440) return `${Math.floor(minutes / 60)} saat`;
+        return `${Math.floor(minutes / 1440)} gün`;
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 glass-panel overflow-hidden shadow-2xl"
+        >
+            <div className="p-6 border-b border-white/5 bg-white/[0.02]">
+                <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                    <Clock size={16} /> WATCHLIST YÖNETİMİ
+                </h2>
+            </div>
+
+            <div className="p-6">
+                {/* Listeleme */}
+                <div className="space-y-2 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                    {loading ? (
+                        <div className="text-zinc-500 text-xs">Yükleniyor...</div>
+                    ) : watchlist.length === 0 ? (
+                        <div className="text-zinc-600 text-xs italic">Henüz watchlist'e eklenmiş site yok.</div>
+                    ) : (
+                        watchlist.map((w) => (
+                            <div key={w.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5 group hover:border-white/20 transition-all hover:bg-white/10">
+                                {editingId === w.id ? (
+                                    // Düzenleme Modu
+                                    <div className="flex-1 flex gap-2 items-center flex-wrap">
+                                        <input
+                                            value={editForm.url}
+                                            onChange={e => setEditForm({ ...editForm, url: e.target.value })}
+                                            className="bg-black/80 border border-zinc-600 rounded px-2 py-1 text-xs text-white flex-1 min-w-[200px] font-mono"
+                                            placeholder="galileoff.onion"
+                                        />
+                                        <input
+                                            type="number"
+                                            value={editForm.interval}
+                                            onChange={e => setEditForm({ ...editForm, interval: e.target.value })}
+                                            className="bg-black/80 border border-zinc-600 rounded px-2 py-1 text-xs text-white w-20 font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            placeholder="60"
+                                            min="1"
+                                        />
+                                        <input
+                                            value={editForm.description}
+                                            onChange={e => setEditForm({ ...editForm, description: e.target.value })}
+                                            className="bg-black/80 border border-zinc-600 rounded px-2 py-1 text-xs text-white flex-1 min-w-[150px]"
+                                            placeholder="Açıklama (opsiyonel)"
+                                        />
+                                        <button onClick={saveEdit} className="p-1 hover:text-emerald-500 text-zinc-400"><Check size={14} /></button>
+                                        <button onClick={cancelEdit} className="p-1 hover:text-red-500 text-zinc-400"><X size={14} /></button>
+                                    </div>
+                                ) : (
+                                    // Görüntüleme Modu
+                                    <>
+                                        <div className="flex-1">
+                                            <div className="text-sm font-mono text-white tracking-wide break-all">{w.url}</div>
+                                            <div className="flex items-center gap-3 mt-1">
+                                                <div className="text-[11px] text-emerald-400 uppercase tracking-widest font-medium flex items-center gap-1">
+                                                    <Clock size={10} /> {formatInterval(w.interval_minutes)}
+                                                </div>
+                                                {w.description && (
+                                                    <div className="text-[11px] text-zinc-500 italic">{w.description}</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button onClick={() => startEdit(w)} className="p-2 hover:bg-zinc-800 rounded text-zinc-400 hover:text-white transition-colors">
+                                                <Edit2 size={14} />
+                                            </button>
+                                            <button onClick={() => handleDelete(w.id)} className="p-2 hover:bg-red-900/20 rounded text-zinc-600 hover:text-red-500 transition-colors">
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                {/* Ekleme Formu */}
+                <div className="pt-4 border-t border-white/5 flex gap-2 items-end flex-wrap">
+                    <div className="flex-1 min-w-[250px] space-y-1">
+                        <label className="text-[11px] text-zinc-300 uppercase font-bold tracking-wider">Site URL</label>
+                        <input
+                            type="url"
+                            value={newWatch.url}
+                            onChange={(e) => setNewWatch({ ...newWatch, url: e.target.value })}
+                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-mono placeholder-zinc-600"
+                            placeholder="galileoff.onion"
+                        />
+                    </div>
+                    <div className="w-28 space-y-1">
+                        <label className="text-[11px] text-zinc-300 uppercase font-bold tracking-wider">Süre (dk)</label>
+                        <input
+                            type="number"
+                            value={newWatch.interval}
+                            onChange={(e) => setNewWatch({ ...newWatch, interval: e.target.value })}
+                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-bold placeholder-zinc-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            placeholder="60"
+                            min="1"
+                        />
+                    </div>
+                    <div className="flex-1 min-w-[200px] space-y-1">
+                        <label className="text-[11px] text-zinc-300 uppercase font-bold tracking-wider">Açıklama (Opsiyonel)</label>
+                        <input
+                            type="text"
+                            value={newWatch.description}
+                            onChange={(e) => setNewWatch({ ...newWatch, description: e.target.value })}
+                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors placeholder-zinc-600"
+                            placeholder="Örn: APT Grup Forumu"
+                        />
+                    </div>
+                    <button
+                        onClick={handleAdd}
+                        disabled={!newWatch.url || !newWatch.interval}
+                        className="h-[34px] px-4 bg-white text-black text-xs font-bold rounded hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                        <Plus size={14} /> EKLE
+                    </button>
+                </div>
+            </div>
+        </motion.div>
+    );
+}
+
 export default function SettingsPage() {
     const [config, setConfig] = useState({
         torProxy: true,
-        deepAnalysis: false,
+        watchlistEnabled: false,
         autoSave: true,
         headlessMode: true,
         randomUA: false,
@@ -295,7 +533,8 @@ export default function SettingsPage() {
 
     useEffect(() => {
         const savedRandomUA = localStorage.getItem('settings_randomUA') === 'true';
-        setConfig(prev => ({ ...prev, randomUA: savedRandomUA }));
+        const savedWatchlistEnabled = localStorage.getItem('settings_watchlistEnabled') === 'true';
+        setConfig(prev => ({ ...prev, randomUA: savedRandomUA, watchlistEnabled: savedWatchlistEnabled }));
     }, []);
 
     const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -448,6 +687,9 @@ export default function SettingsPage() {
             {/* User Agent Yönetimi */}
             <UserAgentManager />
 
+            {/* Watchlist Yönetimi */}
+            <WatchlistManager />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
 
                 {/* Ağ Ayarları */}
@@ -486,11 +728,21 @@ export default function SettingsPage() {
                     </h2>
 
                     <Toggle
-                        label="DERİN ANALİZ MODU"
-                        description="Alt sayfaları ve dış bağlantıları da tarama kapsamına alır (Daha yavaş)."
-                        icon={Power}
-                        checked={config.deepAnalysis}
-                        onChange={(v) => setConfig({ ...config, deepAnalysis: v })}
+                        label="WATCHLIST AKTİF"
+                        description="Watchlist'teki siteleri belirlenen aralıklarla otomatik olarak tarar."
+                        icon={Clock}
+                        checked={config.watchlistEnabled}
+                        onChange={async (v) => {
+                            setConfig({ ...config, watchlistEnabled: v });
+                            localStorage.setItem('settings_watchlistEnabled', v);
+
+                            // Tüm watchlist öğelerinin is_active değerini güncelle
+                            try {
+                                await axios.put('http://localhost:8080/api/settings/watchlist/toggle-all', { is_active: v });
+                            } catch (error) {
+                                console.error("Watchlist toggle hatası:", error);
+                            }
+                        }}
                     />
 
                 </motion.div>

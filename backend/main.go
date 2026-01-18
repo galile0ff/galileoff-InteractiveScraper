@@ -30,6 +30,9 @@ func main() {
 	// Uptime Başlat
 	utils.InitStartTime()
 
+	// Watchlist Scheduler Başlat
+	go utils.StartWatchlistScheduler(DB)
+
 	r := gin.Default()
 
 	// CORS Ara Katmanı
@@ -80,7 +83,15 @@ func main() {
 		// Ayarlar (User Agents)
 		api.GET("/settings/user-agents", settingsCtrl.GetUserAgents)
 		api.POST("/settings/user-agents", settingsCtrl.AddUserAgent)
+		api.PUT("/settings/user-agents/:id", settingsCtrl.UpdateUserAgent)
 		api.DELETE("/settings/user-agents/:id", settingsCtrl.DeleteUserAgent)
+
+		// Ayarlar (Watchlist)
+		api.GET("/settings/watchlist", settingsCtrl.GetWatchlist)
+		api.POST("/settings/watchlist", settingsCtrl.AddWatchlistItem)
+		api.PUT("/settings/watchlist/toggle-all", settingsCtrl.ToggleAllWatchlist)
+		api.PUT("/settings/watchlist/:id", settingsCtrl.UpdateWatchlistItem)
+		api.DELETE("/settings/watchlist/:id", settingsCtrl.DeleteWatchlistItem)
 	}
 
 	port := os.Getenv("PORT")
@@ -112,7 +123,7 @@ func initDB() {
 	}
 
 	// Otomatik Taşıma
-	err = DB.AutoMigrate(&models.Site{}, &models.Stats{}, &models.User{}, &models.SystemLog{}, &models.Thread{}, &models.Post{}, &models.Keyword{}, &models.UserAgent{})
+	err = DB.AutoMigrate(&models.Site{}, &models.Stats{}, &models.User{}, &models.SystemLog{}, &models.Thread{}, &models.Post{}, &models.Keyword{}, &models.UserAgent{}, &models.Watchlist{})
 	if err != nil {
 		log.Printf("Taşıma başarısız: %v", err)
 	} else {

@@ -32,27 +32,17 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 		return
 	}
 
-	// URL Normalizasyonu (https ve .onion ekle)
+	// URL Normalizasyonu
 	req.URL = scraper.NormalizeURL(req.URL)
 	utils.LogInfo(sc.DB, fmt.Sprintf("Tarama isteği alındı: %s", req.URL))
 
-	// 1. Sitenin var olup olmadığını kontrol et
-	var existingSite models.Site
-	if result := sc.DB.Where("url = ?", req.URL).First(&existingSite); result.Error == nil {
-		utils.LogInfo(sc.DB, fmt.Sprintf("Hedef veritabanında mevcut: %s", req.URL))
-	}
-
-	// 2. Taramayı Başlat
+	// Tor Proxy Hazırlığı
 	torProxy := os.Getenv("TOR_PROXY")
-
-	// Eğer env tanımlı değilse, aktif portu otomatik bul
 	if torProxy == "" {
 		activeProxy, err := scraper.GetActiveTorProxy()
 		if err != nil {
 			utils.LogError(sc.DB, "Aktif Tor proxy bulunamadı.")
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": err.Error(),
-			})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 		torProxy = activeProxy
@@ -60,25 +50,8 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 	utils.LogInfo(sc.DB, fmt.Sprintf("Proxy bağlantısı kuruldu: %s", torProxy))
 
 	result, err := scraper.AnalyzeSite(req.URL, torProxy)
-
 	if err != nil {
-		errStr := err.Error()
-		status := http.StatusInternalServerError
-
-		var userMsg string
-		if scraper.IsProxyConnectionError(err) {
-			userMsg = "Tor Ağına Bağlanılamadı. Lütfen Tor Browser'ın açık olduğundan emin olun."
-			utils.LogError(sc.DB, "Tor ağına bağlanılamadı.")
-		} else {
-			status = http.StatusBadGateway
-			userMsg = "Site Taranamadı: " + errStr
-			utils.LogError(sc.DB, fmt.Sprintf("Site tarama hatası: %s", errStr))
-		}
-
-		c.JSON(status, gin.H{
-			"error":   userMsg,
-			"details": errStr,
-		})
+		sc.handleScanError(c, err, torProxy)
 		return
 	}
 
@@ -90,9 +63,31 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 		return
 	}
 
-	// 3. Forum olup olmadığını kontrol et
+	sc.processScanResult(c, result)
+}
+
+// Hata Yanıtı (JSON)
+func (sc *ScanController) handleScanError(c *gin.Context, err error, proxy string) {
+	errStr := err.Error()
+	status := http.StatusInternalServerError
+	var userMsg string
+
+	if scraper.IsProxyConnectionError(err) {
+		userMsg = "Tor Ağına Bağlanılamadı. Lütfen Tor Browser'ın açık olduğundan emin olun."
+		utils.LogError(sc.DB, "Tor ağına bağlanılamadı.")
+	} else {
+		status = http.StatusBadGateway
+		userMsg = "Site Taranamadı: " + errStr
+		utils.LogError(sc.DB, fmt.Sprintf("Site tarama hatası: %s", errStr))
+	}
+
+	c.JSON(status, gin.H{"error": userMsg, "details": errStr})
+}
+
+// Sonuç İşleme (JSON)
+func (sc *ScanController) processScanResult(c *gin.Context, result *scraper.ScrapeResult) {
 	if !result.IsForum {
-		utils.LogWarn(sc.DB, fmt.Sprintf("Hedef forum yapısına uymuyor: %s", req.URL))
+		utils.LogWarn(sc.DB, fmt.Sprintf("Hedef forum yapısına uymuyor: %s", result.URL))
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Site forum değil. Veri kaydedilmedi.",
 			"data":    result,
@@ -101,33 +96,36 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 		return
 	}
 
-	// 4. Veritabanına Kaydet
-	site := models.Site{
-		URL:      result.URL,
-		IsForum:  true,
-		LastScan: time.Now(),
-	}
-
-	if err := sc.DB.Where(models.Site{URL: result.URL}).FirstOrCreate(&site).Error; err != nil {
-		utils.LogError(sc.DB, "Veritabanı kayıt hatası.")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "DB Kaydetme Hatası: " + err.Error()})
-		return
-	}
-
-	// Stats oluştur
-	stats := models.Stats{
-		SiteID:       site.ID,
-		TotalThreads: result.ThreadCount,
-		TotalPosts:   result.PostCount,
-		ScanDate:     time.Now(),
-	}
-	sc.DB.Create(&stats)
-
-	utils.LogSuccess(sc.DB, fmt.Sprintf("Analiz tamamlandı. %d Konu, %d İleti.", result.ThreadCount, result.PostCount))
+	sc.saveToDB(result)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Forum algılandı ve başarıyla kaydedildi",
 		"data":    result,
 		"saved":   true,
 	})
+}
+
+// Veritabanına Kayıt
+func (sc *ScanController) saveToDB(result *scraper.ScrapeResult) {
+	site := models.Site{URL: result.URL, IsForum: true, LastScan: time.Now()}
+	sc.DB.Where(models.Site{URL: result.URL}).FirstOrCreate(&site)
+
+	stats := models.Stats{SiteID: site.ID, TotalThreads: result.ThreadCount, TotalPosts: result.PostCount, ScanDate: time.Now()}
+	sc.DB.Create(&stats)
+
+	go func(siteID, statsID uint, threads []scraper.ThreadData) {
+		for _, t := range threads {
+			thread := models.Thread{
+				SiteID: siteID, StatsID: statsID, Title: t.Title, Link: t.Link,
+				Author: t.Author, Date: t.Date, Content: t.Content,
+			}
+			sc.DB.Create(&thread)
+			for i, p := range t.Posts {
+				sc.DB.Create(&models.Post{
+					ThreadID: thread.ID, Author: p.Author, Content: p.Content,
+					Date: p.Date, Order: i + 1,
+				})
+			}
+		}
+	}(site.ID, stats.ID, result.Threads)
 }

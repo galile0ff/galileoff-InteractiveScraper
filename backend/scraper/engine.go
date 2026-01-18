@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly/v2"
 	"github.com/gocolly/colly/v2/proxy"
 )
@@ -18,6 +19,22 @@ type ScrapeResult struct {
 	ThreadCount  int
 	PostCount    int
 	ErrorMessage string
+	Threads      []ThreadData
+}
+
+type ThreadData struct {
+	Title   string
+	Link    string
+	Author  string
+	Date    string
+	Content string
+	Posts   []PostData
+}
+
+type PostData struct {
+	Author  string
+	Content string
+	Date    string
 }
 
 // AnalyzeSite, hedef siteyi tarar ve sonuçları döndürür.
@@ -29,8 +46,11 @@ func AnalyzeSite(targetURL string, torProxy string) (*ScrapeResult, error) {
 	for i := 0; i < maxRetries; i++ {
 		// Loglama: Deneme sayısı
 		if i > 0 {
-			log.Printf("Yeniden deneniyor (%d/%d): %s", i+1, maxRetries, targetURL)
+			msg := fmt.Sprintf("Yeniden deneniyor (%d/%d): %s", i+1, maxRetries, targetURL)
+			log.Println(msg)
 			time.Sleep(2 * time.Second) // Bekleme süresi
+		} else {
+			log.Printf("Bağlantı başlatılıyor: %s", targetURL)
 		}
 
 		result, err = performScan(targetURL, torProxy)
@@ -41,9 +61,15 @@ func AnalyzeSite(targetURL string, torProxy string) (*ScrapeResult, error) {
 		}
 
 		errMsg := err.Error()
-		if strings.Contains(errMsg, "geçersiz") || strings.Contains(errMsg, "desteklenmeyen") {
+		if strings.Contains(errMsg, "geçersiz") || strings.Contains(errMsg, "desteklenmeyen") ||
+			strings.Contains(errMsg, "timeout") || strings.Contains(errMsg, "zaman aşımı") ||
+			strings.Contains(errMsg, "unreachable") || strings.Contains(errMsg, "connection refused") ||
+			strings.Contains(errMsg, "no such host") {
+			log.Printf("Kritik Hata: %v", err)
 			return nil, err
 		}
+
+		log.Printf("Hata alındı: %v. Bekleniyor...", err)
 	}
 
 	return nil, fmt.Errorf("Maksimum deneme sayısına ulaşıldı. Son hata: %v", err)
@@ -55,7 +81,7 @@ func performScan(targetURL string, torProxy string) (*ScrapeResult, error) {
 	)
 
 	// Zaman aşımını ayarla
-	c.SetRequestTimeout(60 * time.Second)
+	c.SetRequestTimeout(15 * time.Second)
 
 	// User Agent döndür
 	c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -73,50 +99,171 @@ func performScan(targetURL string, torProxy string) (*ScrapeResult, error) {
 		URL: targetURL,
 	}
 
-	// Bir forumu işaret eden anahtar kelimeler
-	forumKeywords := []string{"thread", "post", "topic", "forum", "vbulletin", "xenforo", "phpbb", "mybb", "discussion", "board"}
-
 	c.OnHTML("html", func(e *colly.HTMLElement) {
+
+		// --- Forum Tespiti ---
+		detectionScore := 0
+
+		// 1. Meta Etiketlerini Kontrol Et
+		e.DOM.Find("meta[name='generator']").Each(func(i int, s *goquery.Selection) {
+			content, exists := s.Attr("content")
+			if exists {
+				content = strings.ToLower(content)
+				if strings.Contains(content, "vbulletin") || strings.Contains(content, "xenforo") ||
+					strings.Contains(content, "mybb") || strings.Contains(content, "phpbb") ||
+					strings.Contains(content, "fluxbb") || strings.Contains(content, "smf") ||
+					strings.Contains(content, "discuz") || strings.Contains(content, "nodebb") {
+					detectionScore += 10
+				}
+			}
+		})
+
+		// 2. URL Yapısını Analiz Et
+		urlLower := strings.ToLower(e.Request.URL.String())
+		if strings.Contains(urlLower, "thread") || strings.Contains(urlLower, "topic") ||
+			strings.Contains(urlLower, "showthread") || strings.Contains(urlLower, "viewtopic") ||
+			strings.Contains(urlLower, "board") || strings.Contains(urlLower, "forums") {
+			detectionScore += 5
+		}
+
+		// 3. İçerik ve Anahtar Kelime Analizi
 		text := strings.ToLower(e.Text)
-		html, _ := e.DOM.Html()
-		html = strings.ToLower(html)
+		forumKeywords := []string{
+			"thread", "post", "topic", "forum", "vbulletin", "xenforo",
+			"phpbb", "mybb", "discussion", "board", "kategori", "başlık",
+			"cevap", "reply", "quote", "alıntı", "last post", "son mesaj",
+			"started by", "gönderen", "registered", "kayıtlı",
+		}
 
-		result.Title = e.ChildText("title")
-
-		// Forum tespiti için basit sezgisel yöntem
-		keywordCount := 0
 		for _, kw := range forumKeywords {
-			if strings.Contains(text, kw) || strings.Contains(html, kw) {
-				keywordCount++
+			if strings.Contains(text, kw) {
+				detectionScore += 1
 			}
 		}
 
-		// Yaygın forum yapı sınıflarını/ID'lerini kontrol et
-		threadLen := e.DOM.Find(".thread").Length()
-		postLen := e.DOM.Find(".post").Length()
-
-		if threadLen > 0 || postLen > 0 || e.DOM.Find("#forums").Length() > 0 {
-			keywordCount += 2
+		// 4. DOM Yapısal Analizi
+		if e.DOM.Find(".thread, .topic, .row, .threadbit, .windowbg").Length() > 0 {
+			detectionScore += 3
+		}
+		if e.DOM.Find(".post, .message, .entry, .postbit, .post_block").Length() > 0 {
+			detectionScore += 3
+		}
+		if e.DOM.Find(".pagination, .pagenav, .pages").Length() > 0 {
+			detectionScore += 2
+		}
+		if e.DOM.Find(".breadcrumb, .navbit").Length() > 0 {
+			detectionScore += 2
 		}
 
-		if keywordCount >= 3 {
+		// Meta tag varsa direkt kabul et, yoksa diğer işaretlerin toplamına bak
+		if detectionScore >= 5 {
 			result.IsForum = true
 		}
 
-		// İstatistikleri ata
-		if threadLen > 0 {
-			result.ThreadCount = threadLen
-		} else {
-			if result.IsForum {
-				result.ThreadCount = len(text) / 500
+		// 1. İletileri Tespit Et
+		// Yaygın forum yazılımlarının kullandığı kapsayıcı sınıflar
+		postSelectors := []string{".post", ".message", ".entry", "article", ".comment", ".post-container", "div[id^='post']"}
+
+		var posts []PostData
+
+		// Seçicileri dene
+		for _, selector := range postSelectors {
+			e.DOM.Find(selector).Each(func(i int, s *goquery.Selection) {
+				// İçerik
+				content := strings.TrimSpace(s.Find(".content, .message, .body, .text, .entry-content, .post_body").Text())
+				if content == "" {
+					content = strings.TrimSpace(s.Text()) // Özel sınıf yoksa hepsini al
+					if len(content) > 500 {
+						content = content[:500] + "..."
+					} // Çok uzunsa kes
+				}
+
+				// Yazar
+				author := strings.TrimSpace(s.Find(".author, .user, .username, .name, a[href*='user'], .poster").First().Text())
+				if author == "" {
+					author = "Anonymous"
+				}
+
+				// Tarih
+				date := strings.TrimSpace(s.Find(".date, .time, time, .timestamp, .published").First().Text())
+				if date == "" {
+					date = time.Now().Format("2006-01-02 15:04")
+				}
+
+				posts = append(posts, PostData{
+					Author:  author,
+					Content: content,
+					Date:    date,
+				})
+			})
+
+			// Eğer post bulduysak diğer seçicileri denemeye gerek yok (çakışmayı önlemek için)
+			if len(posts) > 0 {
+				break
 			}
 		}
 
-		if postLen > 0 {
-			result.PostCount = postLen
+		// 2. Thread Yapısını Oluştur
+		// Eğer postlar bulunduysa, bu sayfayı bir "Konu" olarak kabul et
+		if len(posts) > 0 {
+			result.IsForum = true
+			result.PostCount = len(posts)
+
+			// İlk postu başlatan kişi olarak alabiliriz
+			threadAuthor := posts[0].Author
+			threadDate := posts[0].Date
+			threadContent := posts[0].Content // İlk post ana içeriktir
+
+			result.Threads = []ThreadData{
+				{
+					Title:   result.Title, // Sayfa başlığı konu başlığıdır
+					Link:    result.URL,
+					Author:  threadAuthor,
+					Date:    threadDate,
+					Content: threadContent,
+					Posts:   posts, // Tüm postları ekle
+				},
+			}
+			result.ThreadCount = 1
 		} else {
+			// Eğer post bulunamadıysa ama "Forum" tespit edildiyse (keywordlerle)
 			if result.IsForum {
-				result.PostCount = len(text) / 100
+				// Konu listesi ayrıştırması
+				e.DOM.Find(".thread, .topic, .row").Each(func(i int, s *goquery.Selection) {
+					title := strings.TrimSpace(s.Find(".title, .subject, h3, a").First().Text())
+					if title != "" {
+						result.Threads = append(result.Threads, ThreadData{
+							Title:  title,
+							Link:   result.URL, // Link ayrıştırması daha karmaşık olabilir
+							Author: "Unknown",
+							Date:   time.Now().Format("2006-01-02"),
+						})
+					}
+				})
+				result.ThreadCount = len(result.Threads)
+				if result.ThreadCount == 0 {
+					// Fallback: Eğer hiçbir yapısal veri bulunamazsa, sayfayı tek bir konu gibi kaydet
+					// Böylece kullanıcı en azından metin içeriğini görebilir.
+
+					// Tüm metni al
+					rawContent := strings.TrimSpace(e.DOM.Find("body").Text())
+					if len(rawContent) > 2000 {
+						rawContent = rawContent[:2000] + "... (devamı kırpıldı)"
+					}
+
+					result.Threads = []ThreadData{
+						{
+							Title:   result.Title,
+							Link:    result.URL,
+							Author:  "System (Fallback)",
+							Date:    time.Now().Format("2006-01-02 15:04"),
+							Content: "Otomatik ayrıştırma başarısız oldu. Ham içerik:\n\n" + rawContent,
+							Posts:   []PostData{},
+						},
+					}
+					result.ThreadCount = 1
+					result.PostCount = 0
+				}
 			}
 		}
 	})

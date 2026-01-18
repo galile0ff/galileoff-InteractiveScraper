@@ -37,7 +37,7 @@ func main() {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
@@ -57,11 +57,19 @@ func main() {
 		scanCtrl := controllers.NewScanController(DB)
 		authCtrl := controllers.NewAuthController(DB)
 		statsCtrl := controllers.NewStatsController(DB)
+		historyCtrl := controllers.NewHistoryController(DB)
+		settingsCtrl := controllers.NewSettingsController(DB)
 
 		api.POST("/scan", scanCtrl.ScanSite)
 		api.POST("/login", authCtrl.Login)
 		api.GET("/stats/general", statsCtrl.GetGeneralStats)
 		api.GET("/logs", statsCtrl.GetSystemLogs)
+
+		api.GET("/history", historyCtrl.GetHistory)
+		api.GET("/history/:id", historyCtrl.GetScanDetails)
+
+		// Sistem İşlemleri
+		api.DELETE("/system/reset-db", settingsCtrl.ResetDatabase)
 	}
 
 	port := os.Getenv("PORT")
@@ -93,7 +101,7 @@ func initDB() {
 	}
 
 	// Otomatik Taşıma
-	err = DB.AutoMigrate(&models.Site{}, &models.Stats{}, &models.User{}, &models.SystemLog{})
+	err = DB.AutoMigrate(&models.Site{}, &models.Stats{}, &models.User{}, &models.SystemLog{}, &models.Thread{}, &models.Post{})
 	if err != nil {
 		log.Printf("Taşıma başarısız: %v", err)
 	} else {

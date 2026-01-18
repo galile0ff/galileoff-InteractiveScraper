@@ -59,8 +59,8 @@ export default function GeneralDashboard() {
 
     // Veri Hazırlığı
     const distributionData = [
-        { name: 'Forum', value: stats.distribution?.forums || 0 },
-        { name: 'Normal Site', value: stats.distribution?.sites || 0 },
+        { name: 'Konular', value: stats.thread_count || 0 },
+        { name: 'İletiler', value: stats.post_count || 0 },
     ];
 
     const StatCard = ({ label, value, icon: Icon, subLabel, trend, delay }) => (
@@ -139,10 +139,10 @@ export default function GeneralDashboard() {
 
             {/* İstatistik Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard label="Taranan Hedef" value={stats.site_count} icon={Globe} subLabel="AKTİF" trend="+%12" delay={0} />
-                <StatCard label="İndeksli İçerik" value={stats.page_count} icon={FileText} subLabel="SAYFA" trend="+%5" delay={0.1} />
-                <StatCard label="Konu Başlığı" value={stats.thread_count} icon={MessageSquare} trend="Stabil" delay={0.2} />
-                <StatCard label="Analiz Edilen Veri" value={stats.post_count} icon={Database} subLabel="GİRDİ" trend="+%24" delay={0.3} />
+                <StatCard label="Taranan Hedef" value={stats.site_count} icon={Globe} subLabel="AKTİF" delay={0} />
+                <StatCard label="İndeksli İçerik" value={stats.page_count} icon={FileText} subLabel="SAYFA" delay={0.1} />
+                <StatCard label="Konu Başlığı" value={stats.thread_count} icon={MessageSquare} delay={0.2} />
+                <StatCard label="Analiz Edilen Veri" value={stats.post_count} icon={Database} subLabel="GİRDİ" delay={0.3} />
             </div>
 
             {/* Ana İçerik Grid */}
@@ -291,7 +291,7 @@ export default function GeneralDashboard() {
                     <div className="border border-zinc-800 bg-zinc-900/20 p-6 flex flex-col items-center">
                         <h3 className="text-xs text-zinc-400 font-bold uppercase tracking-widest mb-4 w-full text-left flex items-center gap-2">
                             <Activity size={14} className="text-purple-500" />
-                            Hedef Dağılımı
+                            İçerik Dağılımı
                         </h3>
                         <div className="w-[200px] h-[200px] relative">
                             <ResponsiveContainer width="100%" height="100%">
@@ -316,8 +316,8 @@ export default function GeneralDashboard() {
                             </ResponsiveContainer>
                             {/* Ortadaki Yazı */}
                             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                <span className="text-2xl font-bold text-white">{stats.site_count}</span>
-                                <span className="text-[9px] text-zinc-500 uppercase">TOPLAM</span>
+                                <span className="text-2xl font-bold text-white">{(stats.thread_count || 0) + (stats.post_count || 0)}</span>
+                                <span className="text-[9px] text-zinc-500 uppercase">VERİ</span>
                             </div>
                         </div>
                         <div className="flex gap-4 mt-4 w-full justify-center">

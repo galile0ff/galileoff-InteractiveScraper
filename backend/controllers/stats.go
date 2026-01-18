@@ -55,7 +55,7 @@ func (ctrl *StatsController) GetGeneralStats(c *gin.Context) {
 	ctrl.DB.Table("stats").
 		Select("sites.url, stats.total_threads, stats.total_posts").
 		Joins("left join sites on sites.id = stats.site_id").
-		Order("stats.created_at desc").
+		Order("stats.scan_date desc").
 		Limit(10).
 		Scan(&volumes)
 
@@ -100,9 +100,24 @@ func (ctrl *StatsController) GetGeneralStats(c *gin.Context) {
 		torStatus = "AKTİF"
 	}
 
+	// --- Genel Toplamlar ---
+	var pageCount int64
+	ctrl.DB.Model(&models.Stats{}).Count(&pageCount)
+
+	type TotalStats struct {
+		TotalThreads int64
+		TotalPosts   int64
+	}
+	var totals TotalStats
+	ctrl.DB.Model(&models.Stats{}).Select("COALESCE(SUM(total_threads), 0) as total_threads, COALESCE(SUM(total_posts), 0) as total_posts").Scan(&totals)
+
 	c.JSON(http.StatusOK, gin.H{
-		"site_count":     siteCount,
-		"recent_sites":   lastSites,
+		"site_count":   siteCount,
+		"page_count":   pageCount,           // İndeksli İçerik
+		"thread_count": totals.TotalThreads, // Konu Başlığı
+		"post_count":   totals.TotalPosts,   // Analiz Edilen Veri
+		"recent_sites": lastSites,
+
 		"content_volume": contentVolume,
 		"distribution": gin.H{
 			"forums": forumCount,

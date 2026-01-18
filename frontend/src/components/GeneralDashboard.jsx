@@ -96,7 +96,7 @@ export default function GeneralDashboard() {
         </motion.div>
     );
 
-    const SystemMetric = ({ label, value, icon: Icon, color }) => (
+    const SystemMetric = ({ label, value, percentage, icon: Icon, color }) => (
         <div className="flex items-center justify-between p-3 bg-zinc-950/50 border border-zinc-900 rounded-sm">
             <div className="flex items-center gap-3">
                 <Icon size={14} className={color} />
@@ -104,7 +104,7 @@ export default function GeneralDashboard() {
             </div>
             <div className="flex items-center gap-3">
                 <div className="w-24 h-1.5 bg-zinc-900 rounded-full overflow-hidden">
-                    <div className={`h-full ${color.replace('text-', 'bg-')} rounded-full`} style={{ width: `${typeof value === 'number' ? value : 100}%` }} />
+                    <div className={`h-full ${color.replace('text-', 'bg-')} rounded-full`} style={{ width: `${typeof percentage === 'number' ? percentage : 100}%` }} />
                 </div>
                 <span className="text-[11px] text-white font-mono min-w-[30px] text-right">{value}</span>
             </div>
@@ -280,8 +280,8 @@ export default function GeneralDashboard() {
                             Sistem Sağlığı
                         </h3>
                         <div className="space-y-3">
-                            <SystemMetric label="CPU KULLANIMI" value={`${stats.system_status?.cpu || 0}%`} icon={Cpu} color="text-blue-500" />
-                            <SystemMetric label="BELLEK" value={`${stats.system_status?.memory || 0}%`} icon={HardDrive} color="text-purple-500" />
+                            <SystemMetric label="CPU KULLANIMI" value={`${stats.system_status?.cpu || 0}%`} percentage={stats.system_status?.cpu || 0} icon={Cpu} color="text-blue-500" />
+                            <SystemMetric label="BELLEK" value={`${stats.system_status?.memory || 0}%`} percentage={stats.system_status?.memory || 0} icon={HardDrive} color="text-purple-500" />
                             <SystemMetric label="AĞ GECİKMESİ" value="İyi" icon={Wifi} color="text-emerald-500" />
                             <SystemMetric label="BACKEND ZAMANI" value={stats.system_status?.uptime || "0h"} icon={Zap} color="text-amber-500" />
                         </div>

@@ -64,11 +64,11 @@ export default function HistoryPage() {
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="border border-zinc-800 bg-zinc-900/20 overflow-x-auto"
+                className="glass-panel overflow-x-auto rounded-xl"
             >
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="bg-zinc-900/80 border-b border-zinc-800 text-xs text-zinc-400 uppercase tracking-wider">
+                        <tr className="bg-white/[0.02] border-b border-white/5 text-xs text-zinc-400 uppercase tracking-wider">
                             <th className="py-4 px-6 font-medium">HEDEF URL</th>
                             <th className="py-4 px-6 font-medium">TARİH</th>
                             <th className="py-4 px-6 font-medium">ETİKET</th>
@@ -82,7 +82,7 @@ export default function HistoryPage() {
                             <tr><td colSpan="6" className="p-8 text-center text-zinc-400">Yükleniyor...</td></tr>
                         ) : history && history.length > 0 ? (
                             history.map((item) => (
-                                <tr key={item.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/20 transition-colors group">
+                                <tr key={item.id} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
                                     <td className="py-4 px-6 text-xs text-zinc-300 font-mono group-hover:text-white transition-colors max-w-[200px] sm:max-w-[300px]">
                                         <div className="flex items-center gap-2 w-full">
                                             <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${item.is_forum ? 'bg-emerald-500' : 'bg-blue-500'}`} />
@@ -156,10 +156,10 @@ export default function HistoryPage() {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-zinc-900 border border-zinc-800 w-full max-w-4xl max-h-[85vh] overflow-hidden relative z-10 shadow-2xl shadow-black/50 flex flex-col"
+                            className="glass-panel w-full max-w-4xl max-h-[85vh] overflow-hidden relative z-10 rounded-2xl flex flex-col"
                         >
                             {/* Modal Header */}
-                            <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-950">
+                            <div className="p-4 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                                 <div>
                                     <h2 className="text-lg font-bold text-white flex items-center gap-2">
                                         <FileText size={18} className="text-blue-500" />

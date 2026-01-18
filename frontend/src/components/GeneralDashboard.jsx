@@ -9,7 +9,8 @@ import {
 import {
     Globe, FileText, MessageSquare, Database, Activity, Target, Shield,
     Server, Cpu, HardDrive, Wifi, Zap, Lock, Terminal,
-    EyeOff
+    EyeOff,
+    LayoutDashboard
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -68,7 +69,7 @@ export default function GeneralDashboard() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: delay }}
-            className="relative overflow-hidden bg-zinc-900/40 border border-zinc-800 p-6 group hover:border-zinc-700 transition-colors"
+            className="glass-card p-6 group"
         >
             <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity transform group-hover:scale-110 duration-500">
                 <Icon size={80} />
@@ -118,7 +119,7 @@ export default function GeneralDashboard() {
             <div className="flex flex-col md:flex-row justify-between items-end border-b border-zinc-800 pb-6 gap-4">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tighter flex items-center gap-3">
-                        <Terminal className="text-emerald-500" size={28} />
+                        <LayoutDashboard className="text-emerald-500" size={28} />
                         ANA KONTROL PANELİ
                     </h1>
                     <p className="text-xs text-zinc-400 mt-2 uppercase tracking-widest flex items-center gap-2">
@@ -152,7 +153,7 @@ export default function GeneralDashboard() {
                 <div className="lg:col-span-2 space-y-6">
 
                     {/* Tarama Hacmi Grafiği */}
-                    <div className="border border-zinc-800 bg-zinc-900/20 p-6 relative">
+                    <div className="glass-panel p-6 relative">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-xs text-zinc-400 font-bold uppercase tracking-widest flex items-center gap-2">
                                 <Activity size={14} className="text-emerald-500" />
@@ -228,7 +229,7 @@ export default function GeneralDashboard() {
                     </div>
 
                     {/* Son Hedefler Tablosu */}
-                    <div className="border border-zinc-800 bg-zinc-900/20 p-6">
+                    <div className="glass-panel p-6">
                         <h3 className="text-xs text-zinc-400 font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
                             <Target size={14} className="text-red-500" />
                             Son İşlenen Hedefler
@@ -274,7 +275,7 @@ export default function GeneralDashboard() {
                 <div className="space-y-6">
 
                     {/* Sistem Durumu */}
-                    <div className="border border-zinc-800 bg-zinc-900/20 p-6">
+                    <div className="glass-panel p-6">
                         <h3 className="text-xs text-zinc-400 font-bold uppercase tracking-widest mb-6 flex items-center gap-2">
                             <Server size={14} className="text-emerald-500" />
                             Sistem Sağlığı
@@ -288,7 +289,7 @@ export default function GeneralDashboard() {
                     </div>
 
                     {/* Hedef Dağılımı Pie Chart */}
-                    <div className="border border-zinc-800 bg-zinc-900/20 p-6 flex flex-col items-center">
+                    <div className="glass-panel p-6 flex flex-col items-center">
                         <h3 className="text-xs text-zinc-400 font-bold uppercase tracking-widest mb-4 w-full text-left flex items-center gap-2">
                             <Activity size={14} className="text-purple-500" />
                             İçerik Dağılımı

@@ -72,9 +72,9 @@ function KeywordManager() {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8 border border-zinc-800 bg-zinc-900/30 rounded-xl overflow-hidden"
+            className="mb-8 glass-panel overflow-hidden shadow-2xl"
         >
-            <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                 <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
                     <Tag size={16} /> KATEGORİ & KEYWORD YÖNETİMİ
                 </h2>
@@ -92,7 +92,7 @@ function KeywordManager() {
                         <div className="text-zinc-600 text-xs italic">Henüz tanımlı anahtar kelime yok.</div>
                     ) : (
                         keywords.map((k) => (
-                            <div key={k.id} className="flex items-center justify-between p-3 bg-zinc-900/50 rounded-lg border border-zinc-800 group hover:border-zinc-700 transition-all">
+                            <div key={k.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5 group hover:border-white/20 transition-all hover:bg-white/10">
                                 {editingId === k.id ? (
                                     // Düzenleme Modu
                                     <div className="flex-1 flex gap-2 items-center">
@@ -143,14 +143,14 @@ function KeywordManager() {
                 </div>
 
                 {/* Ekleme Formu */}
-                <div className="pt-4 border-t border-zinc-800/50 flex gap-2 items-end">
+                <div className="pt-4 border-t border-white/5 flex gap-2 items-end">
                     <div className="flex-1 space-y-1">
                         <label className="text-[11px] text-zinc-300 uppercase font-bold tracking-wider">Aranacak Kelime</label>
                         <input
                             type="text"
                             value={newKeyword.word}
                             onChange={(e) => setNewKeyword({ ...newKeyword, word: e.target.value })}
-                            className="w-full bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-medium placeholder-zinc-600"
+                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-medium placeholder-zinc-600"
                             placeholder="Örn: hack, spoof, apt..."
                         />
                     </div>
@@ -160,7 +160,7 @@ function KeywordManager() {
                             type="text"
                             value={newKeyword.category}
                             onChange={(e) => setNewKeyword({ ...newKeyword, category: e.target.value })}
-                            className="w-full bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-medium placeholder-zinc-600"
+                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-medium placeholder-zinc-600"
                             placeholder="Örn: Hacking"
                         />
                     </div>
@@ -170,7 +170,7 @@ function KeywordManager() {
                             type="color"
                             value={newKeyword.color}
                             onChange={(e) => setNewKeyword({ ...newKeyword, color: e.target.value })}
-                            className="h-[34px] w-12 bg-zinc-900 border border-zinc-800 rounded px-1 cursor-pointer"
+                            className="h-[34px] w-12 bg-black/50 border border-white/10 rounded px-1 cursor-pointer"
                         />
                     </div>
                     <button
@@ -230,9 +230,9 @@ function UserAgentManager() {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8 border border-zinc-800 bg-zinc-900/30 rounded-xl overflow-hidden"
+            className="mb-8 glass-panel overflow-hidden shadow-2xl"
         >
-            <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                 <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
                     <Layers size={16} /> USER AGENT YÖNETİMİ
                 </h2>
@@ -249,7 +249,7 @@ function UserAgentManager() {
                         <div className="text-zinc-600 text-xs italic">Henüz tanımlı User Agent yok.</div>
                     ) : (
                         userAgents.map((ua) => (
-                            <div key={ua.ID} className="flex items-center justify-between p-3 bg-zinc-900/50 rounded-lg border border-zinc-800 group hover:border-zinc-700 transition-all">
+                            <div key={ua.ID} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5 group hover:border-white/20 transition-all hover:bg-white/10">
                                 <span className="text-xs text-zinc-300 font-mono break-all">{ua.user_agent}</span>
                                 <button onClick={() => handleDelete(ua.ID)} className="p-2 hover:bg-red-900/20 rounded text-zinc-600 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
                                     <Trash2 size={14} />
@@ -259,14 +259,14 @@ function UserAgentManager() {
                     )}
                 </div>
 
-                <div className="pt-4 border-t border-zinc-800/50 flex gap-2 items-end">
+                <div className="pt-4 border-t border-white/5 flex gap-2 items-end">
                     <div className="flex-1 space-y-1">
                         <label className="text-[11px] text-zinc-300 uppercase font-bold tracking-wider">Yeni User Agent</label>
                         <input
                             type="text"
                             value={newUA}
                             onChange={(e) => setNewUA(e.target.value)}
-                            className="w-full bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-medium placeholder-zinc-600 font-mono"
+                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-medium placeholder-zinc-600 font-mono"
                             placeholder="Mozilla/5.0..."
                         />
                     </div>
@@ -322,9 +322,9 @@ export default function SettingsPage() {
     };
 
     const Toggle = ({ label, description, checked, onChange, icon: Icon }) => (
-        <div className="flex items-center justify-between p-6 border border-zinc-800 bg-zinc-900/20 hover:border-zinc-700 transition-colors">
+        <div className="flex items-center justify-between p-6 glass-card shadow-lg">
             <div className="flex items-start gap-4">
-                <div className="p-2 bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-lg">
+                <div className="p-2 bg-white/5 border border-white/5 text-zinc-400 rounded-lg">
                     <Icon size={20} />
                 </div>
                 <div>
@@ -437,6 +437,8 @@ export default function SettingsPage() {
                             </p>
                         </div>
                     </div>
+                    {/* Glass Şerit */}
+                    <div className="absolute top-0 left-0 w-1 h-full bg-current opacity-50" />
                 </motion.div>
             )}
 
@@ -495,12 +497,12 @@ export default function SettingsPage() {
             </div>
 
             {/* Tehlikeli Bölge */}
-            <div className="mt-12 pt-8 border-t border-zinc-800">
+            <div className="mt-12 pt-8 border-t border-white/5">
                 <h2 className="text-xs text-red-500 font-bold uppercase tracking-widest flex items-center gap-2 mb-6">
                     <Lock size={14} /> KRİTİK İŞLEMLER
                 </h2>
 
-                <div className="flex items-center justify-between p-6 border border-red-900/30 bg-red-900/5 hover:bg-red-900/10 transition-colors">
+                <div className="flex items-center justify-between p-6 border border-red-500/10 bg-red-500/5 backdrop-blur-xl rounded-xl hover:bg-red-500/10 transition-colors">
                     <div>
                         <h3 className="text-sm font-bold text-red-500 mb-1">VERİTABANINI SIFIRLA</h3>
                         <p className="text-xs text-red-400/60">Tüm geçmiş tarama kayıtlarını ve indekslenmiş sayfaları kalıcı olarak siler.</p>

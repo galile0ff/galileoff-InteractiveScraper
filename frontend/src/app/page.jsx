@@ -58,7 +58,7 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center font-mono">
+      <div className="min-h-screen bg-transparent flex items-center justify-center font-mono">
         <div className="flex flex-col items-center gap-4">
           <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
           <span className="text-emerald-500 text-xs tracking-widest animate-pulse">BAĞLANTI KURULUYOR...</span>
@@ -72,7 +72,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex overflow-hidden selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-transparent text-white flex overflow-hidden selection:bg-emerald-500/30">
       {/* Yan Menü */}
       <Sidebar
         activeTab={activeTab}
@@ -82,9 +82,6 @@ export default function Home() {
 
       {/* Ana İçerik Alanı */}
       <main className="flex-1 ml-64 p-8 relative overflow-y-auto h-screen scrollbar-hide">
-        {/* Arka Plan Efekti */}
-        <div className="fixed top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900/50 via-black to-black pointer-events-none -z-10" />
-        <div className="fixed top-[-20%] right-[-10%] w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none -z-10" />
 
         {activeTab === 'dashboard' && <GeneralDashboard />}
         {activeTab === 'scanner' && <Scanner onScanComplete={handleScanComplete} onChangeTab={setActiveTab} />}

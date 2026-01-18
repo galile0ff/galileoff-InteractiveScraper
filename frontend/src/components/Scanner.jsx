@@ -79,14 +79,14 @@ export default function Scanner({ onScanComplete, onChangeTab }) {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="border border-zinc-800 bg-black/80 backdrop-blur-sm relative overflow-hidden"
+                className="glass-panel relative overflow-hidden"
             >
                 {/* Dekoratif Çizgiler */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500/20 via-emerald-500/50 to-emerald-500/20" />
                 <div className="absolute bottom-0 left-0 w-full h-[1px] bg-zinc-900" />
 
                 {/* Terminal Başlığı */}
-                <div className="flex items-center justify-between px-4 py-2 bg-zinc-900/50 border-b border-zinc-800">
+                <div className="flex items-center justify-between px-4 py-2 bg-white/[0.02] border-b border-white/5">
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-red-500/20 border border-red-500/50" />
                         <div className="w-2 h-2 rounded-full bg-amber-500/20 border border-amber-500/50" />
@@ -106,7 +106,7 @@ export default function Scanner({ onScanComplete, onChangeTab }) {
                                 type="text"
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
-                                className="w-full bg-zinc-900/30 border border-zinc-800 text-white font-mono py-4 pl-16 pr-4 focus:outline-none focus:border-emerald-500/50 focus:bg-zinc-900/50 transition-all placeholder-zinc-700"
+                                className="w-full bg-black/50 border border-white/10 text-white font-mono py-4 pl-16 pr-4 focus:outline-none focus:border-emerald-500/50 focus:bg-black/70 transition-all placeholder-zinc-700 rounded-sm"
                                 placeholder="http://galileoff.onion"
                                 autoFocus
                             />
@@ -191,17 +191,17 @@ export default function Scanner({ onScanComplete, onChangeTab }) {
 
             {/* Alt Bilgi */}
             <div className="mt-8 grid grid-cols-3 gap-4">
-                <div className="p-4 border border-dashed border-zinc-800 bg-zinc-900/20 flex flex-col items-center text-center gap-2">
+                <div className="glass-card p-4 flex flex-col items-center text-center gap-2">
                     <Shield size={20} className="text-zinc-100" />
                     <span className="text-xs text-zinc-100 uppercase">Güvenli Tarama</span>
                 </div>
 
-                <div className="p-4 border border-dashed border-zinc-800 bg-zinc-900/20 flex flex-col items-center text-center gap-2">
+                <div className="glass-card p-4 flex flex-col items-center text-center gap-2">
                     <Database size={20} className="text-zinc-100" />
                     <span className="text-xs text-zinc-100 uppercase">Otomatik Arşiv</span>
                 </div>
 
-                <div className="p-4 border border-dashed border-zinc-800 bg-zinc-900/20 flex flex-col items-center text-center gap-2">
+                <div className="glass-card p-4 flex flex-col items-center text-center gap-2">
                     <Terminal size={20} className="text-zinc-100" />
                     <span className="text-[10px] text-zinc-100 uppercase">Derin Analiz</span>
                 </div>

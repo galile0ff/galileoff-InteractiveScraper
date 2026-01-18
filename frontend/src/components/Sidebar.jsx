@@ -11,9 +11,9 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
     ];
 
     return (
-        <div className="w-64 bg-black border-r border-zinc-900 flex flex-col h-screen fixed left-0 top-0 z-50 font-mono">
+        <div className="w-64 glass-sidebar flex flex-col h-screen fixed left-0 top-0 z-50 font-mono">
             {/* Üst Bilgi */}
-            <div className="p-6 border-b border-zinc-900">
+            <div className="p-6 border-b border-white/5">
                 <div className="flex items-center gap-3">
                     <EyeOff size={20} className="text-white" strokeWidth={2} />
                     <span className="text-sm font-bold text-white tracking-widest">galileoff.</span>
@@ -26,9 +26,9 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
                     <button
                         key={item.id}
                         onClick={() => setActiveTab(item.id)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 text-xs font-medium uppercase tracking-wider transition-colors border-l-2 ${activeTab === item.id
-                            ? 'bg-zinc-900 text-white border-white'
-                            : 'text-zinc-400 border-transparent hover:text-zinc-300 hover:bg-zinc-950'
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-xs font-medium uppercase tracking-wider transition-all border-l-2 ${activeTab === item.id
+                            ? 'bg-white/5 text-white border-white'
+                            : 'text-zinc-500 border-transparent hover:text-zinc-300 hover:bg-white/[0.02]'
                             }`}
                     >
                         <item.icon size={16} />
@@ -38,10 +38,10 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
             </nav>
 
             {/* Alt Bilgi */}
-            <div className="p-4 border-t border-zinc-900">
+            <div className="p-4 border-t border-white/5">
                 <button
                     onClick={onLogout}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 transition-colors text-xs font-medium uppercase tracking-wider"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 transition-colors text-xs font-medium uppercase tracking-wider rounded-lg"
                 >
                     <LogOut size={16} />
                     <span>ÇIKIŞ</span>

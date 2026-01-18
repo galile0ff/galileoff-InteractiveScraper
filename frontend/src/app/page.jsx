@@ -87,7 +87,7 @@ export default function Home() {
         <div className="fixed top-[-20%] right-[-10%] w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none -z-10" />
 
         {activeTab === 'dashboard' && <GeneralDashboard />}
-        {activeTab === 'scanner' && <Scanner onScanComplete={handleScanComplete} />}
+        {activeTab === 'scanner' && <Scanner onScanComplete={handleScanComplete} onChangeTab={setActiveTab} />}
         {activeTab === 'history' && <HistoryPage />}
         {activeTab === 'settings' && <SettingsPage />}
       </main>

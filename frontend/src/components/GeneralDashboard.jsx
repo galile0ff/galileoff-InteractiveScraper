@@ -47,7 +47,7 @@ export default function GeneralDashboard() {
         <div className="flex h-screen items-center justify-center bg-zinc-950 font-mono">
             <div className="flex flex-col items-center gap-4">
                 <Activity className="animate-spin text-emerald-500" size={32} />
-                <span className="text-zinc-500 text-xs tracking-widest animate-pulse">SİSTEM VERİLERİ YÜKLENİYOR...</span>
+                <span className="text-zinc-400 text-xs tracking-widest animate-pulse">SİSTEM VERİLERİ YÜKLENİYOR...</span>
             </div>
         </div>
     );
@@ -79,14 +79,14 @@ export default function GeneralDashboard() {
                     <div className="p-2 bg-zinc-900/80 border border-zinc-800 rounded-lg text-emerald-500">
                         <Icon size={20} />
                     </div>
-                    {trend && <span className="text-[10px] bg-emerald-500/10 text-emerald-500 px-2 py-1 rounded border border-emerald-500/20 font-mono">{trend}</span>}
+                    {trend && <span className="text-xs bg-emerald-500/10 text-emerald-500 px-2 py-1 rounded border border-emerald-500/20 font-mono">{trend}</span>}
                 </div>
 
                 <div>
                     <div className="text-3xl font-bold text-white font-mono tracking-tighter mb-1">{value}</div>
-                    <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-semibold flex items-center gap-2">
+                    <div className="text-xs text-zinc-400 uppercase tracking-widest font-semibold flex items-center gap-2">
                         {label}
-                        {subLabel && <span className="text-zinc-600 text-[9px]"> — {subLabel}</span>}
+                        {subLabel && <span className="text-zinc-500 text-[11px]"> — {subLabel}</span>}
                     </div>
                 </div>
             </div>
@@ -121,14 +121,14 @@ export default function GeneralDashboard() {
                         <Terminal className="text-emerald-500" size={28} />
                         ANA KONTROL PANELİ
                     </h1>
-                    <p className="text-xs text-zinc-500 mt-2 uppercase tracking-widest flex items-center gap-2">
+                    <p className="text-xs text-zinc-400 mt-2 uppercase tracking-widest flex items-center gap-2">
                         <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
                         Sistem Çevrimiçi • Veri Akışı Aktif
                     </p>
                 </div>
                 <div className="flex items-center gap-4">
                     <div className="text-right hidden md:block">
-                        <div className="text-[10px] text-zinc-600 uppercase">Son Güncelleme</div>
+                        <div className="text-xs text-zinc-500 uppercase">Son Güncelleme</div>
                         <div className="text-xs text-emerald-500 font-mono">AZ ÖNCE</div>
                     </div>
                     <div className="px-4 py-2 bg-zinc-900 border border-zinc-800 text-zinc-400 text-xs flex items-center gap-2">
@@ -161,11 +161,11 @@ export default function GeneralDashboard() {
                             <div className="flex gap-4">
                                 <div className="flex items-center gap-2">
                                     <span className="w-2 h-2 bg-emerald-500 rounded-full" />
-                                    <span className="text-[10px] text-zinc-500">İLETİLER</span>
+                                    <span className="text-xs text-zinc-400">İLETİLER</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className="w-2 h-2 bg-blue-500 rounded-full" />
-                                    <span className="text-[10px] text-zinc-500">KONULAR</span>
+                                    <span className="text-xs text-zinc-400">KONULAR</span>
                                 </div>
                             </div>
                         </div>
@@ -236,7 +236,7 @@ export default function GeneralDashboard() {
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="border-b border-zinc-800 text-[10px] text-zinc-500 uppercase tracking-wider">
+                                    <tr className="border-b border-zinc-800 text-xs text-zinc-400 uppercase tracking-wider">
                                         <th className="py-3 font-medium">HEDEF URL</th>
                                         <th className="py-3 font-medium">TÜR</th>
                                         <th className="py-3 font-medium text-right">DURUM</th>
@@ -247,17 +247,17 @@ export default function GeneralDashboard() {
                                         <tr key={site.id} className="border-b border-zinc-800/50 group hover:bg-zinc-800/30 transition-colors">
                                             <td className="py-3 text-xs text-zinc-300 font-mono group-hover:text-white transition-colors">
                                                 <div className="flex items-center gap-2">
-                                                    <Shield size={12} className="text-zinc-600" />
+                                                    <Shield size={12} className="text-zinc-500" />
                                                     {site.url}
                                                 </div>
                                             </td>
                                             <td className="py-3">
-                                                <span className={`text-[9px] px-2 py-0.5 border ${site.is_forum ? 'border-amber-500/30 text-amber-500 bg-amber-500/5' : 'border-blue-500/30 text-blue-500 bg-blue-500/5'}`}>
+                                                <span className={`text-[11px] px-2 py-0.5 border ${site.is_forum ? 'border-amber-500/30 text-amber-500 bg-amber-500/5' : 'border-blue-500/30 text-blue-500 bg-blue-500/5'}`}>
                                                     {site.is_forum ? 'FORUM' : 'WEB'}
                                                 </span>
                                             </td>
                                             <td className="py-3 text-right">
-                                                <span className="text-[9px] text-emerald-500 flex items-center justify-end gap-1">
+                                                <span className="text-[11px] text-emerald-500 flex items-center justify-end gap-1">
                                                     <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" /> TAMAMLANDI
                                                 </span>
                                             </td>
@@ -317,14 +317,14 @@ export default function GeneralDashboard() {
                             {/* Ortadaki Yazı */}
                             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                 <span className="text-2xl font-bold text-white">{(stats.thread_count || 0) + (stats.post_count || 0)}</span>
-                                <span className="text-[9px] text-zinc-500 uppercase">VERİ</span>
+                                <span className="text-[11px] text-zinc-400 uppercase">VERİ</span>
                             </div>
                         </div>
                         <div className="flex gap-4 mt-4 w-full justify-center">
                             {distributionData.map((entry, index) => (
                                 <div key={entry.name} className="flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index] }} />
-                                    <span className="text-[10px] text-zinc-400 uppercase">{entry.name}</span>
+                                    <span className="text-xs text-zinc-400 uppercase">{entry.name}</span>
                                 </div>
                             ))}
                         </div>
@@ -332,7 +332,7 @@ export default function GeneralDashboard() {
 
 
                     {/* Canlı Log */}
-                    <div className="border border-zinc-800 bg-black p-4 font-mono text-[10px] h-[200px] overflow-hidden relative flex flex-col">
+                    <div className="border border-zinc-800 bg-black p-4 font-mono text-xs h-[200px] overflow-hidden relative flex flex-col">
                         <div className="absolute top-2 right-2 flex gap-1 z-10">
                             <div className="w-1.5 h-1.5 rounded-full bg-red-500/20 border border-red-500/50" />
                             <div className="w-1.5 h-1.5 rounded-full bg-amber-500/20 border border-amber-500/50" />
@@ -340,13 +340,13 @@ export default function GeneralDashboard() {
                         </div>
                         <div className="text-emerald-500/50 mb-2 border-b border-emerald-500/20 pb-1 flex justify-between">
                             <span>CANLI GÜNLÜK AKIŞI</span>
-                            <span className="text-[9px] font-normal">TCP:8080</span>
+                            <span className="text-[11px] font-normal">TCP:8080</span>
                         </div>
                         <div className="space-y-1 overflow-y-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                             {logs.length > 0 ? (
                                 logs.map((log) => (
                                     <div key={log.id} className="flex gap-2">
-                                        <span className="text-zinc-600 shrink-0">[{new Date(log.created_at).toLocaleTimeString()}]</span>
+                                        <span className="text-zinc-500 shrink-0">[{new Date(log.created_at).toLocaleTimeString()}]</span>
                                         <span className={`${log.level === 'ERROR' ? 'text-red-500' :
                                             log.level === 'WARN' ? 'text-amber-500' :
                                                 log.level === 'SUCCESS' ? 'text-emerald-400' :
@@ -359,9 +359,9 @@ export default function GeneralDashboard() {
                                     </div>
                                 ))
                             ) : (
-                                <div className="text-zinc-600 italic">Log kaydı bekleniyor...</div>
+                                <div className="text-zinc-500 italic">Log kaydı bekleniyor...</div>
                             )}
-                            <div className="flex gap-2 underline decoration-emerald-500/30 animate-pulse"><span className="text-zinc-600">_</span></div>
+                            <div className="flex gap-2 underline decoration-emerald-500/30 animate-pulse"><span className="text-zinc-500">_</span></div>
                         </div>
                     </div>
 

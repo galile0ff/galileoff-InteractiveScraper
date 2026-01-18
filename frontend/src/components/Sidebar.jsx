@@ -28,7 +28,7 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
                         onClick={() => setActiveTab(item.id)}
                         className={`w-full flex items-center gap-3 px-4 py-3 text-xs font-medium uppercase tracking-wider transition-colors border-l-2 ${activeTab === item.id
                             ? 'bg-zinc-900 text-white border-white'
-                            : 'text-zinc-500 border-transparent hover:text-zinc-300 hover:bg-zinc-950'
+                            : 'text-zinc-400 border-transparent hover:text-zinc-300 hover:bg-zinc-950'
                             }`}
                     >
                         <item.icon size={16} />
@@ -41,7 +41,7 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
             <div className="p-4 border-t border-zinc-900">
                 <button
                     onClick={onLogout}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 transition-colors text-xs font-medium uppercase tracking-wider"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-zinc-500 hover:text-red-500 hover:bg-red-500/10 transition-colors text-xs font-medium uppercase tracking-wider"
                 >
                     <LogOut size={16} />
                     <span>ÇIKIŞ</span>

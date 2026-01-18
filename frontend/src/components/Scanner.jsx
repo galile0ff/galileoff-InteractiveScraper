@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Search, Loader2, AlertTriangle, Terminal, ChevronRight, globe, Shield, Database, ArrowLeft, ArrowRight, ScanEye } from 'lucide-react';
+import { Loader2, AlertTriangle, Terminal, Shield, Database, ArrowRight, ScanEye } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function Scanner({ onScanComplete }) {
+export default function Scanner({ onScanComplete, onChangeTab }) {
     const [url, setUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -64,7 +64,7 @@ export default function Scanner({ onScanComplete }) {
                         <Terminal className="text-emerald-500" size={28} />
                         HEDEF ANALİZ TERMİNALİ
                     </h1>
-                    <p className="text-xs text-zinc-500 mt-1 uppercase tracking-widest pl-10">
+                    <p className="text-xs text-zinc-400 mt-1 uppercase tracking-widest pl-10">
                         TOR AĞI BAĞLANTISI: <span className={torStatus === 'AKTİF' ? "text-emerald-500" : "text-red-500 animate-pulse"}>{torStatus}</span>
                     </p>
                 </div>
@@ -85,7 +85,7 @@ export default function Scanner({ onScanComplete }) {
                         <div className="w-2 h-2 rounded-full bg-red-500/20 border border-red-500/50" />
                         <div className="w-2 h-2 rounded-full bg-amber-500/20 border border-amber-500/50" />
                         <div className="w-2 h-2 rounded-full bg-emerald-500/20 border border-emerald-500/50" />
-                        <span className="text-[14px] text-zinc-500 ml-2">root@galileoff:~# scraper_engine --target</span>
+                        <span className="text-[14px] text-zinc-400 ml-2">root@galileoff:~# scraper_engine --target</span>
                     </div>
                 </div>
 
@@ -94,7 +94,7 @@ export default function Scanner({ onScanComplete }) {
                         <div className="relative group">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <span className="text-emerald-500 font-bold mr-2">➜</span>
-                                <span className="text-zinc-500">~</span>
+                                <span className="text-zinc-400">~</span>
                             </div>
                             <input
                                 type="text"
@@ -141,7 +141,14 @@ export default function Scanner({ onScanComplete }) {
                             <ScanEye className="text-emerald-500 shrink-0 mt-0.5" size={20} />
                             <div>
                                 <h4 className="text-emerald-500 text-sm font-bold uppercase mb-1">Tarama Başarılı</h4>
-                                <p className="text-emerald-400/80 text-sm">{success}</p>
+                                <p className="text-emerald-400/80 text-sm mb-3">{success}</p>
+                                <button
+                                    onClick={() => onChangeTab('history')}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 text-xs font-bold border border-emerald-500/30 rounded transition-colors"
+                                >
+                                    <Database size={12} />
+                                    DETAYLARI İNCELE
+                                </button>
                             </div>
                         </motion.div>
                     )}
@@ -167,7 +174,7 @@ export default function Scanner({ onScanComplete }) {
                             <div className="h-0.5 w-full bg-zinc-900 overflow-hidden">
                                 <div className="h-full bg-emerald-500/50 w-1/3 animate-[shimmer_2s_infinite]" />
                             </div>
-                            <div className="flex justify-between text-[10px] text-zinc-500 uppercase">
+                            <div className="flex justify-between text-xs text-zinc-400 uppercase">
                                 <span>Proxy Tüneli: <span className="text-emerald-500">AÇIK</span></span>
                                 <span className="animate-pulse">Veri Paketleri Bekleniyor...</span>
                             </div>
@@ -180,12 +187,12 @@ export default function Scanner({ onScanComplete }) {
             <div className="mt-8 grid grid-cols-3 gap-4">
                 <div className="p-4 border border-dashed border-zinc-800 bg-zinc-900/20 flex flex-col items-center text-center gap-2">
                     <Shield size={20} className="text-zinc-100" />
-                    <span className="text-[10px] text-zinc-100 uppercase">Güvenli Tarama</span>
+                    <span className="text-xs text-zinc-100 uppercase">Güvenli Tarama</span>
                 </div>
 
                 <div className="p-4 border border-dashed border-zinc-800 bg-zinc-900/20 flex flex-col items-center text-center gap-2">
                     <Database size={20} className="text-zinc-100" />
-                    <span className="text-[10px] text-zinc-100 uppercase">Otomatik Arşiv</span>
+                    <span className="text-xs text-zinc-100 uppercase">Otomatik Arşiv</span>
                 </div>
 
                 <div className="p-4 border border-dashed border-zinc-800 bg-zinc-900/20 flex flex-col items-center text-center gap-2">

@@ -101,7 +101,7 @@ export default function Login({ onLoginSuccess }) {
                             <div className={`w-2 h-2 rounded-full ${status === 'idle' ? 'bg-zinc-500' : status === 'loading' ? 'bg-amber-500 animate-pulse' : status === 'success' ? 'bg-emerald-500' : 'bg-red-500 animate-ping'}`} />
                             <span className="text-[16px] tracking-[0.2em] font-bold text-white">galileoff.</span>
                         </div>
-                        <div className="flex items-center gap-3 text-[10px] text-zinc-600 font-bold">
+                        <div className="flex items-center gap-3 text-xs text-zinc-500 font-bold">
                             <Wifi size={12} />
                             <span>SCRAPER_DASHBOARD</span>
                         </div>
@@ -110,7 +110,7 @@ export default function Login({ onLoginSuccess }) {
                     <div className="p-8 space-y-8 relative z-10">
 
                         {/* Durum Mesajı */}
-                        <div className="h-8 flex items-center gap-2 text-[10px] tracking-widest uppercase border-l-2 border-zinc-700 pl-3 text-zinc-400">
+                        <div className="h-8 flex items-center gap-2 text-xs tracking-widest uppercase border-l-2 border-zinc-700 pl-3 text-zinc-400">
                             <span className="text-white font-bold">&gt;</span>
                             {statusMessage}
                             <span className="w-1.5 h-3 bg-zinc-500 animate-pulse inline-block ml-1" />
@@ -120,7 +120,7 @@ export default function Login({ onLoginSuccess }) {
 
                             {/* Input: username */}
                             <div className="group space-y-2">
-                                <label className="text-[12px] uppercase tracking-widest text-zinc-600 group-focus-within:text-white transition-colors font-bold ml-1">KULLANICI ID</label>
+                                <label className="text-xs uppercase tracking-widest text-zinc-500 group-focus-within:text-white transition-colors font-bold ml-1">KULLANICI ID</label>
                                 <div className="login-input-wrapper">
                                     <div className="login-input-icon-box">
                                         <ShieldCheck size={14} />
@@ -138,7 +138,7 @@ export default function Login({ onLoginSuccess }) {
 
                             {/* Input: password */}
                             <div className="group space-y-2">
-                                <label className="text-[12px] uppercase tracking-widest text-zinc-600 group-focus-within:text-white transition-colors font-bold ml-1">GÜVENLİK ANAHTARI</label>
+                                <label className="text-xs uppercase tracking-widest text-zinc-500 group-focus-within:text-white transition-colors font-bold ml-1">GÜVENLİK ANAHTARI</label>
                                 <div className="login-input-wrapper">
                                     <div className="login-input-icon-box">
                                         <Lock size={14} />
@@ -225,12 +225,12 @@ export default function Login({ onLoginSuccess }) {
                         </form>
 
                         {/* Footer */}
-                        <div className="flex justify-between items-end border-t border-zinc-800 pt-4 opacity-50 text-[10px]">
+                        <div className="flex justify-between items-end border-t border-zinc-800 pt-4 opacity-50 text-xs">
                             <div className="flex flex-col gap-1">
                                 <span>kimsenin uykusunun fesleğen koktuğu yok</span>
                                 <span>altıkırkbeşte vapur ve sancı geç saatlerde</span>
                             </div>
-                            <PenTool size={20} className="text-zinc-500" />
+                            <PenTool size={20} className="text-zinc-400" />
                         </div>
 
                     </div>

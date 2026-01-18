@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { History, Search, FileText, ArrowUpRight, Calendar, Filter, X, MessageSquare, User } from 'lucide-react';
+import { History, FileText, Calendar, X, MessageSquare, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
@@ -54,7 +54,7 @@ export default function HistoryPage() {
                         <History className="text-blue-500" size={28} />
                         TARAMA GEÇMİŞİ
                     </h1>
-                    <p className="text-xs text-zinc-500 mt-1 uppercase tracking-widest pl-10">
+                    <p className="text-xs text-zinc-400 mt-1 uppercase tracking-widest pl-10">
                         ARŞİV KAYITLARI: <span className="text-white">{history ? history.length : 0}</span>
                     </p>
                 </div>
@@ -68,7 +68,7 @@ export default function HistoryPage() {
             >
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="bg-zinc-900/80 border-b border-zinc-800 text-[10px] text-zinc-500 uppercase tracking-wider">
+                        <tr className="bg-zinc-900/80 border-b border-zinc-800 text-xs text-zinc-400 uppercase tracking-wider">
                             <th className="py-4 px-6 font-medium">HEDEF URL</th>
                             <th className="py-4 px-6 font-medium">TARİH</th>
                             <th className="py-4 px-6 font-medium">TÜR</th>
@@ -79,7 +79,7 @@ export default function HistoryPage() {
                     </thead>
                     <tbody>
                         {loading ? (
-                            <tr><td colSpan="6" className="p-8 text-center text-zinc-500">Yükleniyor...</td></tr>
+                            <tr><td colSpan="6" className="p-8 text-center text-zinc-400">Yükleniyor...</td></tr>
                         ) : history && history.length > 0 ? (
                             history.map((item) => (
                                 <tr key={item.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/20 transition-colors group">
@@ -91,27 +91,27 @@ export default function HistoryPage() {
                                             </span>
                                         </div>
                                     </td>
-                                    <td className="py-4 px-6 text-[11px] text-zinc-500">
+                                    <td className="py-4 px-6 text-xs text-zinc-400">
                                         <div className="flex items-center gap-2">
                                             <Calendar size={12} />
                                             {new Date(item.last_scan).toLocaleString()}
                                         </div>
                                     </td>
                                     <td className="py-4 px-6">
-                                        <span className={`text-[9px] px-2 py-1 border ${item.is_forum ? 'border-amber-500/20 text-amber-500 bg-amber-500/5' :
+                                        <span className={`text-[11px] px-2 py-1 border ${item.is_forum ? 'border-amber-500/20 text-amber-500 bg-amber-500/5' :
                                             'border-blue-500/20 text-blue-500 bg-blue-500/5'
                                             }`}>
                                             {item.is_forum ? 'FORUM' : 'WEB'}
                                         </span>
                                     </td>
-                                    <td className="py-4 px-6 text-[11px] text-zinc-400">
+                                    <td className="py-4 px-6 text-xs text-zinc-400">
                                         <div className="flex gap-3">
                                             <span className="flex items-center gap-1"><span className="text-white font-bold">{item.total_threads}</span> Thread</span>
                                             <span className="flex items-center gap-1"><span className="text-white font-bold">{item.total_posts}</span> Post</span>
                                         </div>
                                     </td>
                                     <td className="py-4 px-6 text-right">
-                                        <span className="text-[10px] font-bold text-emerald-500">
+                                        <span className="text-xs font-bold text-emerald-500">
                                             TAMAMLANDI
                                         </span>
                                     </td>
@@ -129,7 +129,7 @@ export default function HistoryPage() {
                                 </tr>
                             ))
                         ) : (
-                            <tr><td colSpan="6" className="p-12 text-center text-zinc-500 text-sm">Kayıt bulunamadı.</td></tr>
+                            <tr><td colSpan="6" className="p-12 text-center text-zinc-400 text-sm">Kayıt bulunamadı.</td></tr>
                         )}
                     </tbody>
                 </table>
@@ -159,7 +159,7 @@ export default function HistoryPage() {
                                         <FileText size={18} className="text-blue-500" />
                                         İçerik Detayları
                                     </h2>
-                                    {details && <p className="text-xs text-zinc-500 font-mono mt-1">{details.url}</p>}
+                                    {details && <p className="text-xs text-zinc-400 font-mono mt-1">{details.url}</p>}
                                 </div>
                                 <button onClick={closeDetails} className="p-2 hover:bg-zinc-800 rounded-full transition-colors">
                                     <X size={20} className="text-zinc-400" />
@@ -178,12 +178,12 @@ export default function HistoryPage() {
                                             <div key={thread.id} className="p-6 hover:bg-zinc-900/50 transition-colors">
                                                 <div className="flex justify-between items-start mb-4">
                                                     <h3 className="text-md font-bold text-emerald-400 mb-1">{thread.title}</h3>
-                                                    <span className="text-[10px] text-zinc-500 border border-zinc-800 px-2 py-1 rounded bg-zinc-950">
+                                                    <span className="text-xs text-zinc-400 border border-zinc-800 px-2 py-1 rounded bg-zinc-950">
                                                         {thread.date}
                                                     </span>
                                                 </div>
 
-                                                <div className="flex items-center gap-2 text-xs text-zinc-500 mb-4 font-mono">
+                                                <div className="flex items-center gap-2 text-xs text-zinc-400 mb-4 font-mono">
                                                     <User size={12} /> <span className="text-zinc-300">{thread.author || "Bilinmiyor"}</span>
                                                     <span className="w-1 h-1 bg-zinc-700 rounded-full" />
                                                     <a href={thread.link} target="_blank" rel="noreferrer" className="hover:text-blue-400 hover:underline transition-colors truncate max-w-[300px]">
@@ -198,19 +198,19 @@ export default function HistoryPage() {
                                                 {/* İletiler */}
                                                 {thread.posts && thread.posts.length > 0 && (
                                                     <div className="ml-4 pl-4 border-l-2 border-zinc-800 space-y-4 mt-4">
-                                                        <h4 className="text-[10px] uppercase font-bold text-zinc-500 flex items-center gap-2 mb-2">
+                                                        <h4 className="text-xs uppercase font-bold text-zinc-400 flex items-center gap-2 mb-2">
                                                             <MessageSquare size={12} /> Yanıtlar ({thread.posts.length})
                                                         </h4>
                                                         {thread.posts.map((post) => (
                                                             <div key={post.id} className="bg-zinc-900/40 p-3 rounded border border-zinc-800/50 hover:border-zinc-700 transition-colors">
                                                                 <div className="flex justify-between items-center mb-2 pb-2 border-b border-zinc-800/30">
                                                                     <div className="flex items-center gap-2">
-                                                                        <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-[10px] text-blue-400 font-bold">
+                                                                        <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-xs text-blue-400 font-bold">
                                                                             {post.author ? post.author.substring(0, 2).toUpperCase() : "??"}
                                                                         </div>
                                                                         <span className="text-xs font-bold text-blue-300">{post.author || "Anonim"}</span>
                                                                     </div>
-                                                                    <span className="text-[10px] text-zinc-600 font-mono">{post.date}</span>
+                                                                    <span className="text-xs text-zinc-600 font-mono">{post.date}</span>
                                                                 </div>
                                                                 <p className="text-zinc-300 text-xs leading-relaxed whitespace-pre-wrap">{post.content}</p>
                                                             </div>
@@ -221,7 +221,7 @@ export default function HistoryPage() {
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="p-12 text-center text-zinc-500">
+                                    <div className="p-12 text-center text-zinc-400">
                                         Bu taramada kaydedilmiş içerik bulunamadı.
                                     </div>
                                 )}

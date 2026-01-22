@@ -114,7 +114,10 @@ Tüm sistemi tek satır kod ile ayağa kaldırın. En temiz ve önerilen yöntem
 # 1. Projeyi klonlayın (Eğer yapmadıysanız)
 git clone https://github.com/galile0ff/galileoff-InteractiveScraper.git
 
-# 2. Servisleri başlatın
+# 2. Proje dosyasının ana dizinine gidin
+cd ./galileoff-InteractiveScraper/
+
+# 3. Servisleri başlatın
 docker-compose up --build
 ```
 

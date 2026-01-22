@@ -70,7 +70,9 @@ export default function Scanner({ onScanComplete, onChangeTab }) {
                         HEDEF ANALİZ TERMİNALİ
                     </h1>
                     <p className="text-xs text-zinc-400 mt-1 uppercase tracking-widest pl-10">
-                        TOR AĞI BAĞLANTISI: <span className={torStatus === 'AKTİF' ? "text-emerald-500" : "text-red-500 animate-pulse"}>{torStatus}</span>
+                        TOR AĞI BAĞLANTISI: <span className={torStatus === 'AKTİF' ? "text-emerald-500" : "text-red-500 animate-pulse"}>
+                            {torStatus === 'AKTİF' ? 'CONNECTED' : 'DISCONNECTED'}
+                        </span>
                     </p>
                 </div>
             </div>
@@ -180,7 +182,9 @@ export default function Scanner({ onScanComplete, onChangeTab }) {
                                 <div className="h-full bg-emerald-500/50 w-1/3 animate-[shimmer_2s_infinite]" />
                             </div>
                             <div className="flex justify-between text-xs text-zinc-400 uppercase">
-                                <span>Proxy Tüneli: <span className="text-emerald-500">AÇIK</span></span>
+                                <span>Proxy Tüneli: <span className={torStatus === 'AKTİF' ? "text-emerald-500" : "text-red-500"}>
+                                    {torStatus === 'AKTİF' ? 'AÇIK' : 'KAPALI'}
+                                </span></span>
                                 <span className="animate-pulse">Veri Paketleri Bekleniyor...</span>
                             </div>
                         </div>

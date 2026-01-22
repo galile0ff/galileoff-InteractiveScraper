@@ -326,7 +326,10 @@ export default function GeneralDashboard() {
                             <div className="flex gap-4 text-[9px] font-medium text-zinc-500 font-sans tracking-tight">
                                 <div className="flex items-center gap-1">
                                     <span>DURUM:</span>
-                                    <span className="text-emerald-500">CONNECTED</span>
+                                    <span>DURUM:</span>
+                                    <span className={stats.system_status?.tor_status === 'AKTİF' ? "text-emerald-500" : "text-red-500"}>
+                                        {stats.system_status?.tor_status === 'AKTİF' ? 'CONNECTED' : 'DISCONNECTED'}
+                                    </span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <span>GECİKME:</span>

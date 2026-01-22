@@ -8,7 +8,7 @@ const api = axios.create({
 api.interceptors.request.use(
     (config) => {
         if (typeof window !== 'undefined') {
-            const token = localStorage.getItem('authToken');
+            const token = sessionStorage.getItem('authToken');
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
             }
@@ -27,7 +27,7 @@ api.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             // Token geçersiz veya süresi dolmuş
             if (typeof window !== 'undefined') {
-                localStorage.removeItem('authToken');
+                sessionStorage.removeItem('authToken');
             }
         }
         return Promise.reject(error);

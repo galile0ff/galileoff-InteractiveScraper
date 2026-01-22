@@ -19,26 +19,37 @@ export default function Home() {
   const [scanResult, setScanResult] = useState(null);
 
   useEffect(() => {
+    // Sayfa yenilendiğinde oturumu koru
+    if (typeof window !== 'undefined') {
+      const token = sessionStorage.getItem('authToken');
+      if (token) {
+        setIsAuthenticated(true);
+        const savedTab = sessionStorage.getItem('activeTab');
+        if (savedTab) {
+          setActiveTab(savedTab);
+        }
+      }
+    }
     setIsLoading(false);
   }, []);
 
   // Sekme değiştiğinde kaydet
   useEffect(() => {
     if (isAuthenticated) {
-      localStorage.setItem('activeTab', activeTab);
+      sessionStorage.setItem('activeTab', activeTab);
     }
   }, [activeTab, isAuthenticated]);
 
   const handleLoginSuccess = (token) => {
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('activeTab', 'dashboard'); // Login olunca dashboard'a git
+    sessionStorage.setItem('authToken', token);
+    sessionStorage.setItem('activeTab', 'dashboard');
     setActiveTab('dashboard');
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('activeTab'); // Çıkış yapınca sekme bilgisini sil
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('activeTab');
     setIsAuthenticated(false);
     setScanResult(null);
     setActiveTab('dashboard');

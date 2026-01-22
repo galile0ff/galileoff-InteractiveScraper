@@ -1,12 +1,13 @@
 "use client";
 
-import { Search, History, Settings, LogOut, EyeOff, LayoutDashboard } from 'lucide-react';
+import { Search, History, Settings, LogOut, EyeOff, LayoutDashboard, FileText } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
     const menuItems = [
         { id: 'dashboard', label: 'Panel', icon: LayoutDashboard },
         { id: 'scanner', label: 'Tarayıcı', icon: Search },
         { id: 'history', label: 'Geçmiş', icon: History },
+        { id: 'logs', label: 'Loglar', icon: FileText },
         { id: 'settings', label: 'Ayarlar', icon: Settings },
     ];
 

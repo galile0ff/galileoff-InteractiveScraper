@@ -9,6 +9,7 @@ import Sidebar from '../components/Sidebar';
 const Scanner = dynamic(() => import('../components/Scanner'), { ssr: false });
 const GeneralDashboard = dynamic(() => import('../components/GeneralDashboard'), { ssr: false });
 const HistoryPage = dynamic(() => import('../components/History'), { ssr: false });
+const LogsPage = dynamic(() => import('../components/Logs'), { ssr: false });
 const SettingsPage = dynamic(() => import('../components/Settings'), { ssr: false });
 
 export default function Home() {
@@ -86,6 +87,7 @@ export default function Home() {
         {activeTab === 'dashboard' && <GeneralDashboard />}
         {activeTab === 'scanner' && <Scanner onScanComplete={handleScanComplete} onChangeTab={setActiveTab} />}
         {activeTab === 'history' && <HistoryPage />}
+        {activeTab === 'logs' && <LogsPage />}
         {activeTab === 'settings' && <SettingsPage />}
       </main>
     </div>

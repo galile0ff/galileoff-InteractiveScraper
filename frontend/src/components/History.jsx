@@ -81,27 +81,51 @@ export default function HistoryPage() {
 
                 {/* Filtreleme Menüsü */}
                 {history.length > 0 && uniqueTags.length > 1 && (
-                    <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide max-w-full">
-                        <div className="flex items-center gap-2 bg-zinc-900/50 p-1 rounded-lg border border-white/5">
-                            <span className="text-xs text-zinc-500 px-2 flex items-center gap-1">
-                                <Filter size={12} />
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex flex-col sm:flex-row items-start sm:items-center gap-3"
+                    >
+                        <div className="flex items-center gap-2 p-1.5 rounded-xl border border-white/10 bg-zinc-900/60 backdrop-blur-md shadow-xl overflow-x-auto max-w-full scrollbar-hide">
+                            <span className="text-[10px] text-zinc-500 font-bold px-3 py-1 flex items-center gap-1.5 border-r border-white/5 mr-1 uppercase tracking-wider">
+                                <Filter size={12} className="text-emerald-500" />
+                                <span className="hidden sm:inline">FİLTRE</span>
                             </span>
-                            {uniqueTags.map(tag => (
-                                <button
-                                    key={tag}
-                                    onClick={() => setSelectedTag(tag)}
-                                    className={`
-                                        px-3 py-1.5 rounded text-xs font-bold transition-all whitespace-nowrap
-                                        ${selectedTag === tag
-                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
-                                            : 'text-zinc-400 hover:text-white hover:bg-white/5'}
-                                    `}
-                                >
-                                    {tag === 'ALL' ? 'TÜMÜ' : tag}
-                                </button>
-                            ))}
+                            {uniqueTags.map(tag => {
+                                // Etiket rengini bul
+                                const tagItem = history.find(h => h.category === tag);
+                                const color = tagItem?.color || '#a855f7';
+                                const active = selectedTag === tag;
+                                const isAll = tag === 'ALL';
+
+                                return (
+                                    <button
+                                        key={tag}
+                                        onClick={() => setSelectedTag(tag)}
+                                        className={`
+                                            px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap border
+                                            ${active
+                                                ? 'bg-opacity-20 border-opacity-50 text-opacity-100 shadow-[0_0_10px_rgba(0,0,0,0.2)]'
+                                                : 'border-transparent text-zinc-400 hover:text-white hover:bg-white/5'}
+                                        `}
+                                        style={active && !isAll ? {
+                                            backgroundColor: `${color}33`, // %20 opacity
+                                            borderColor: `${color}80`, // %50 opacity
+                                            color: color,
+                                            boxShadow: `0 0 10px ${color}33`
+                                        } : active && isAll ? {
+                                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                                            borderColor: 'rgba(59, 130, 246, 0.5)',
+                                            color: '#60a5fa',
+                                            boxShadow: '0 0 10px rgba(59, 130, 246, 0.2)'
+                                        } : {}}
+                                    >
+                                        {tag === 'ALL' ? 'TÜMÜ' : tag}
+                                    </button>
+                                );
+                            })}
                         </div>
-                    </div>
+                    </motion.div>
                 )}
             </div>
 

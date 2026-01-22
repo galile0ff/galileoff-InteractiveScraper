@@ -35,20 +35,21 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 
 	// URL Normalizasyonu
 	req.URL = scraper.NormalizeURL(req.URL)
-	utils.LogInfo(sc.DB, fmt.Sprintf("Tarama isteği alındı: %s", req.URL))
+	startTime := time.Now()
+	utils.LogInfo(sc.DB, "SCANNER", fmt.Sprintf("Tarama başlatıldı: %s", req.URL))
 
 	// Tor Proxy Hazırlığı
 	torProxy := os.Getenv("TOR_PROXY")
 	if torProxy == "" {
 		activeProxy, err := scraper.GetActiveTorProxy()
 		if err != nil {
-			utils.LogError(sc.DB, "Aktif Tor proxy bulunamadı.")
+			utils.LogError(sc.DB, "SCANNER", "Aktif Tor proxy bulunamadı.")
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 		torProxy = activeProxy
 	}
-	utils.LogInfo(sc.DB, fmt.Sprintf("Proxy bağlantısı kuruldu: %s", torProxy))
+	utils.LogInfo(sc.DB, "SCANNER", fmt.Sprintf("Proxy bağlantısı kuruldu: %s", torProxy))
 
 	// Keywordleri Getir
 	var keywords []models.Keyword
@@ -70,14 +71,14 @@ func (sc *ScanController) ScanSite(c *gin.Context) {
 	}
 
 	if result.ErrorMessage != "" {
-		utils.LogError(sc.DB, fmt.Sprintf("Erişim hatası: %s", result.ErrorMessage))
+		utils.LogError(sc.DB, "SCANNER", fmt.Sprintf("Erişim hatası: %s", result.ErrorMessage))
 		c.JSON(http.StatusBadGateway, gin.H{
 			"error": "Siteye Erişilemedi (" + torProxy + "): " + result.ErrorMessage,
 		})
 		return
 	}
 
-	sc.processScanResult(c, result)
+	sc.processScanResult(c, result, startTime)
 }
 
 // Hata Yanıtı (JSON)
@@ -88,34 +89,40 @@ func (sc *ScanController) handleScanError(c *gin.Context, err error, proxy strin
 
 	if scraper.IsProxyConnectionError(err) {
 		userMsg = "Tor Ağına Bağlanılamadı. Lütfen Tor Browser'ın açık olduğundan emin olun."
-		utils.LogError(sc.DB, "Tor ağına bağlanılamadı.")
+		utils.LogError(sc.DB, "SCANNER", "Tor ağına bağlanılamadı.")
 	} else {
 		status = http.StatusBadGateway
 		userMsg = "Site Taranamadı: " + errStr
-		utils.LogError(sc.DB, fmt.Sprintf("Site tarama hatası: %s", errStr))
+		utils.LogError(sc.DB, "SCANNER", fmt.Sprintf("Site tarama hatası: %s", errStr))
 	}
 
 	c.JSON(status, gin.H{"error": userMsg, "details": errStr})
 }
 
 // Sonuç İşleme (JSON)
-func (sc *ScanController) processScanResult(c *gin.Context, result *scraper.ScrapeResult) {
+func (sc *ScanController) processScanResult(c *gin.Context, result *scraper.ScrapeResult, startTime time.Time) {
 	if !result.IsForum {
-		utils.LogWarn(sc.DB, fmt.Sprintf("Hedef forum yapısına uymuyor: %s", result.URL))
+		duration := time.Since(startTime)
+		utils.LogWarn(sc.DB, "SCANNER", fmt.Sprintf("Hedef forum yapısına uymuyor: %s (Süre: %.2fs)", result.URL, duration.Seconds()))
 		c.JSON(http.StatusOK, gin.H{
-			"message": "Site forum değil. Veri kaydedilmedi.",
-			"data":    result,
-			"saved":   false,
+			"message":  "Site forum değil. Veri kaydedilmedi.",
+			"data":     result,
+			"saved":    false,
+			"duration": duration.Seconds(),
 		})
 		return
 	}
 
+	duration := time.Since(startTime)
 	sc.saveToDB(result)
 
+	utils.LogSuccess(sc.DB, "SCANNER", fmt.Sprintf("Tarama tamamlandı: %s (Süre: %.2fs)", result.URL, duration.Seconds()))
+
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Forum algılandı ve başarıyla kaydedildi",
-		"data":    result,
-		"saved":   true,
+		"message":  "Forum algılandı ve başarıyla kaydedildi",
+		"data":     result,
+		"saved":    true,
+		"duration": duration.Seconds(),
 	})
 }
 

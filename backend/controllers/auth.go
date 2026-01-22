@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 	"scraper/models"
+	"scraper/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -35,12 +36,14 @@ func (ac *AuthController) Login(c *gin.Context) {
 	var user models.User
 	// Kullanıcıyı bul
 	if err := ac.DB.Where("username = ?", req.Username).First(&user).Error; err != nil {
+		utils.LogWarn(ac.DB, "AUTH", "Bilinmeyen kullanıcı giriş denemesi: "+req.Username)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Hatalı kullanıcı adı veya şifre."})
 		return
 	}
 
 	// Şifreyi doğrula
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+		utils.LogWarn(ac.DB, "AUTH", "Hatalı şifre denemesi: "+req.Username)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Hatalı kullanıcı adı veya şifre."})
 		return
 	}
@@ -59,9 +62,12 @@ func (ac *AuthController) Login(c *gin.Context) {
 
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
+		utils.LogError(ac.DB, "AUTH", "Token oluşturma hatası: "+err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Token oluşturulamadı."})
 		return
 	}
+
+	utils.LogSuccess(ac.DB, "AUTH", "Başarılı giriş: "+user.Username)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Giriş başarılı",

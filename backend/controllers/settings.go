@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"scraper/models"
 	"scraper/scraper"
@@ -42,7 +43,7 @@ func (ctrl *SettingsController) ResetDatabase(c *gin.Context) {
 	for _, table := range tables {
 		if err := tx.Exec("DELETE FROM " + table).Error; err != nil {
 			tx.Rollback()
-			utils.LogError(ctrl.DB, "Veritabanı sıfırlama hatası: "+err.Error())
+			utils.LogError(ctrl.DB, "SYSTEM", "Veritabanı sıfırlama hatası: "+err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Tablo temizlenemedi: " + table})
 			return
 		}
@@ -54,7 +55,7 @@ func (ctrl *SettingsController) ResetDatabase(c *gin.Context) {
 		return
 	}
 
-	utils.LogSuccess(ctrl.DB, "Sistem veritabanı başarıyla sıfırlandı.")
+	utils.LogSuccess(ctrl.DB, "SYSTEM", "Sistem veritabanı başarıyla sıfırlandı.")
 	c.JSON(http.StatusOK, gin.H{"message": "Veritabanı başarıyla sıfırlandı."})
 }
 
@@ -77,10 +78,12 @@ func (ctrl *SettingsController) AddKeyword(c *gin.Context) {
 	}
 
 	if err := ctrl.DB.Create(&input).Error; err != nil {
+		utils.LogError(ctrl.DB, "SETTINGS", "Keyword eklenemedi: "+input.Word)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Keyword eklenemedi"})
 		return
 	}
 
+	utils.LogInfo(ctrl.DB, "SETTINGS", fmt.Sprintf("Keyword eklendi: %s (%s)", input.Word, input.Category))
 	c.JSON(http.StatusOK, input)
 }
 
@@ -105,10 +108,12 @@ func (ctrl *SettingsController) UpdateKeyword(c *gin.Context) {
 	keyword.Color = input.Color // Renk güncellemesi
 
 	if err := ctrl.DB.Save(&keyword).Error; err != nil {
+		utils.LogError(ctrl.DB, "SETTINGS", "Keyword güncellenemedi: "+keyword.Word)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Keyword güncellenemedi"})
 		return
 	}
 
+	utils.LogInfo(ctrl.DB, "SETTINGS", "Keyword güncellendi: "+keyword.Word)
 	c.JSON(http.StatusOK, keyword)
 }
 
@@ -116,9 +121,11 @@ func (ctrl *SettingsController) UpdateKeyword(c *gin.Context) {
 func (ctrl *SettingsController) DeleteKeyword(c *gin.Context) {
 	id := c.Param("id")
 	if err := ctrl.DB.Delete(&models.Keyword{}, id).Error; err != nil {
+		utils.LogError(ctrl.DB, "SETTINGS", "Keyword silinemedi ID: "+id)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Keyword silinemedi"})
 		return
 	}
+	utils.LogInfo(ctrl.DB, "SETTINGS", "Keyword silindi ID: "+id)
 	c.JSON(http.StatusOK, gin.H{"message": "Keyword silindi"})
 }
 
@@ -141,10 +148,12 @@ func (ctrl *SettingsController) AddUserAgent(c *gin.Context) {
 	}
 
 	if err := ctrl.DB.Create(&input).Error; err != nil {
+		utils.LogError(ctrl.DB, "SETTINGS", "User Agent eklenemedi")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "User Agent eklenemedi"})
 		return
 	}
 
+	utils.LogInfo(ctrl.DB, "SETTINGS", "User Agent eklendi")
 	c.JSON(http.StatusOK, input)
 }
 
@@ -177,9 +186,11 @@ func (ctrl *SettingsController) UpdateUserAgent(c *gin.Context) {
 func (ctrl *SettingsController) DeleteUserAgent(c *gin.Context) {
 	id := c.Param("id")
 	if err := ctrl.DB.Delete(&models.UserAgent{}, id).Error; err != nil {
+		utils.LogError(ctrl.DB, "SETTINGS", "User Agent silinemedi ID: "+id)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "User Agent silinemedi"})
 		return
 	}
+	utils.LogInfo(ctrl.DB, "SETTINGS", "User Agent silindi ID: "+id)
 	c.JSON(http.StatusOK, gin.H{"message": "User Agent silindi"})
 }
 
@@ -211,10 +222,12 @@ func (ctrl *SettingsController) AddWatchlistItem(c *gin.Context) {
 	}
 
 	if err := ctrl.DB.Create(&input).Error; err != nil {
+		utils.LogError(ctrl.DB, "SETTINGS", "Watchlist eklenemedi: "+input.URL)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Watchlist öğesi eklenemedi"})
 		return
 	}
 
+	utils.LogInfo(ctrl.DB, "SETTINGS", "Watchlist eklendi: "+input.URL)
 	c.JSON(http.StatusOK, input)
 }
 
@@ -257,9 +270,11 @@ func (ctrl *SettingsController) UpdateWatchlistItem(c *gin.Context) {
 func (ctrl *SettingsController) DeleteWatchlistItem(c *gin.Context) {
 	id := c.Param("id")
 	if err := ctrl.DB.Delete(&models.Watchlist{}, id).Error; err != nil {
+		utils.LogError(ctrl.DB, "SETTINGS", "Watchlist silinemedi ID: "+id)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Watchlist öğesi silinemedi"})
 		return
 	}
+	utils.LogInfo(ctrl.DB, "SETTINGS", "Watchlist silindi ID: "+id)
 	c.JSON(http.StatusOK, gin.H{"message": "Watchlist öğesi silindi"})
 }
 
@@ -276,9 +291,15 @@ func (ctrl *SettingsController) ToggleAllWatchlist(c *gin.Context) {
 
 	// Tüm watchlist öğelerini güncelle
 	if err := ctrl.DB.Model(&models.Watchlist{}).Where("id > ?", 0).Updates(map[string]interface{}{"is_active": input.IsActive}).Error; err != nil {
+		utils.LogError(ctrl.DB, "SETTINGS", "Watchlist durumu güncellenemedi")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Watchlist güncellenemedi"})
 		return
 	}
 
+	state := "Aktif"
+	if !input.IsActive {
+		state = "Pasif"
+	}
+	utils.LogInfo(ctrl.DB, "SETTINGS", fmt.Sprintf("Tüm Watchlist durumu değiştirildi: %s", state))
 	c.JSON(http.StatusOK, gin.H{"message": "Tüm watchlist öğeleri güncellendi"})
 }

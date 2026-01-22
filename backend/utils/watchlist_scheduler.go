@@ -46,7 +46,7 @@ func processWatchlistItem(db *gorm.DB, item *models.Watchlist) {
 	if torProxy == "" {
 		activeProxy, err := scraper.GetActiveTorProxy()
 		if err != nil {
-			LogError(db, fmt.Sprintf("Watchlist taraması başarısız (Tor proxy bulunamadı): %s", item.URL))
+			LogError(db, "WATCHLIST", fmt.Sprintf("Watchlist taraması başarısız (Tor proxy bulunamadı): %s", item.URL))
 			return
 		}
 		torProxy = activeProxy
@@ -70,13 +70,13 @@ func processWatchlistItem(db *gorm.DB, item *models.Watchlist) {
 	// Siteyi tara
 	result, err := scraper.AnalyzeSite(normalizedURL, torProxy, keywords, userAgents)
 	if err != nil {
-		LogError(db, fmt.Sprintf("Watchlist tarama hatası: %s - %v", item.URL, err))
+		LogError(db, "WATCHLIST", fmt.Sprintf("Watchlist tarama hatası: %s - %v", item.URL, err))
 		updateNextCheck(db, item)
 		return
 	}
 
 	if result.ErrorMessage != "" {
-		LogError(db, fmt.Sprintf("Watchlist erişim hatası: %s - %s", item.URL, result.ErrorMessage))
+		LogError(db, "WATCHLIST", fmt.Sprintf("Watchlist erişim hatası: %s - %s", item.URL, result.ErrorMessage))
 		updateNextCheck(db, item)
 		return
 	}
@@ -84,9 +84,9 @@ func processWatchlistItem(db *gorm.DB, item *models.Watchlist) {
 	// Sadece forum ise kaydet
 	if result.IsForum {
 		saveWatchlistResult(db, result, item)
-		LogSuccess(db, fmt.Sprintf("Watchlist taraması tamamlandı: %s (%d thread, %d post)", item.URL, result.ThreadCount, result.PostCount))
+		LogSuccess(db, "WATCHLIST", fmt.Sprintf("Watchlist taraması tamamlandı: %s (%d thread, %d post)", item.URL, result.ThreadCount, result.PostCount))
 	} else {
-		LogWarn(db, fmt.Sprintf("Watchlist sitesi forum değil: %s", item.URL))
+		LogWarn(db, "WATCHLIST", fmt.Sprintf("Watchlist sitesi forum değil: %s", item.URL))
 	}
 
 	// Bir sonraki kontrol zamanını güncelle

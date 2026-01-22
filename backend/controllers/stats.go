@@ -181,9 +181,28 @@ func (ctrl *StatsController) GetGeneralStats(c *gin.Context) {
 
 func (ctrl *StatsController) GetSystemLogs(c *gin.Context) {
 	var logs []models.SystemLog
-	if err := ctrl.DB.Order("created_at desc").Limit(20).Find(&logs).Error; err != nil {
+	if err := ctrl.DB.Order("created_at desc").Limit(1000).Find(&logs).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch logs"})
 		return
 	}
 	c.JSON(http.StatusOK, logs)
+}
+
+func (ctrl *StatsController) GetLogStats(c *gin.Context) {
+	var total, info, warn, errCount, success int64
+
+	// Her sorguyu bağımsız çalıştır
+	ctrl.DB.Model(&models.SystemLog{}).Count(&total)
+	ctrl.DB.Model(&models.SystemLog{}).Where("level = ?", "INFO").Count(&info)
+	ctrl.DB.Model(&models.SystemLog{}).Where("level = ?", "WARN").Count(&warn)
+	ctrl.DB.Model(&models.SystemLog{}).Where("level = ?", "ERROR").Count(&errCount)
+	ctrl.DB.Model(&models.SystemLog{}).Where("level = ?", "SUCCESS").Count(&success)
+
+	c.JSON(http.StatusOK, gin.H{
+		"total":   total,
+		"info":    info,
+		"warning": warn,
+		"error":   errCount,
+		"success": success,
+	})
 }

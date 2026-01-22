@@ -67,6 +67,7 @@ func main() {
 		api.POST("/login", authCtrl.Login)
 		api.GET("/stats/general", statsCtrl.GetGeneralStats)
 		api.GET("/logs", statsCtrl.GetSystemLogs)
+		api.GET("/logs/stats", statsCtrl.GetLogStats)
 
 		api.GET("/history", historyCtrl.GetHistory)
 		api.GET("/history/:id", historyCtrl.GetScanDetails)

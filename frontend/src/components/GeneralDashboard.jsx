@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     AreaChart, Area, PieChart, Pie, Cell, RadialBarChart, RadialBar, Legend
@@ -23,7 +23,7 @@ export default function GeneralDashboard() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await axios.get('http://localhost:8080/api/stats/general');
+                const res = await api.get('/stats/general');
                 setStats(res.data);
             } catch (error) {
                 console.error("Failed to fetch stats", error);
@@ -34,7 +34,7 @@ export default function GeneralDashboard() {
 
         const fetchLogs = async () => {
             try {
-                const res = await axios.get('http://localhost:8080/api/logs');
+                const res = await api.get('/logs');
                 setLogs(res.data);
             } catch (error) {
                 console.error("Failed to fetch logs");

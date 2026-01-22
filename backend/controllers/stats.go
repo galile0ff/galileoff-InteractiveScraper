@@ -32,9 +32,10 @@ func (ctrl *StatsController) GetGeneralStats(c *gin.Context) {
 
 	// Son 7 Tarama
 	type RecentScan struct {
-		ID       uint      `json:"id"`
-		URL      string    `json:"url"`
-		IsForum  bool      `json:"is_forum"`
+		ID  uint   `json:"id"`
+		URL string `json:"url"`
+
+		// IsForum  bool
 		Source   string    `json:"source"`
 		Category string    `json:"category"`
 		ScanDate time.Time `json:"scan_date"`
@@ -42,7 +43,7 @@ func (ctrl *StatsController) GetGeneralStats(c *gin.Context) {
 	}
 	var recentScans []RecentScan
 	ctrl.DB.Table("stats").
-		Select("stats.id, sites.url, sites.is_forum, stats.source, stats.scan_date, (SELECT category FROM threads WHERE threads.stats_id = stats.id LIMIT 1) as category").
+		Select("stats.id, sites.url, stats.source, stats.scan_date, (SELECT category FROM threads WHERE threads.stats_id = stats.id LIMIT 1) as category").
 		Joins("left join sites on sites.id = stats.site_id").
 		Order("stats.scan_date desc").
 		Limit(7).
@@ -125,8 +126,7 @@ func (ctrl *StatsController) GetGeneralStats(c *gin.Context) {
 	}
 
 	// --- Tür Dağılımı ---
-	var forumCount int64
-	ctrl.DB.Model(&models.Site{}).Where("is_forum = ?", true).Count(&forumCount)
+	forumCount := siteCount
 
 	// --- Sistem Durumu ---
 	var m runtime.MemStats

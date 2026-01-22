@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { Loader2, AlertTriangle, Terminal, Shield, Database, ArrowRight, ScanEye } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -15,7 +15,7 @@ export default function Scanner({ onScanComplete, onChangeTab }) {
     useEffect(() => {
         const checkTor = async () => {
             try {
-                const res = await axios.get('http://localhost:8080/api/stats/general');
+                const res = await api.get('/stats/general');
                 if (res.data.system_status && res.data.system_status.tor_status) {
                     setTorStatus(res.data.system_status.tor_status);
                 } else {
@@ -39,7 +39,7 @@ export default function Scanner({ onScanComplete, onChangeTab }) {
 
         try {
             const randomUA = localStorage.getItem('settings_randomUA') === 'true';
-            const res = await axios.post('http://localhost:8080/api/scan', { url, random_ua: randomUA });
+            const res = await api.post('/scan', { url, random_ua: randomUA });
 
             if (res.data.saved) {
                 const category = res.data.data.threads && res.data.data.threads.length > 0 ? res.data.data.threads[0].category : 'Belirsiz';

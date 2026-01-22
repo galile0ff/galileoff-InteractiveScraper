@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { Settings, Server, Database, Save, Power, Eye, Lock, Edit2, Trash2, Plus, X, Check, Tag, RefreshCw, Layers, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -19,7 +19,7 @@ function KeywordManager({ refreshTrigger }) {
 
     const fetchKeywords = async () => {
         try {
-            const res = await axios.get('http://localhost:8080/api/settings/keywords');
+            const res = await api.get('/settings/keywords');
             setKeywords(res.data);
             setLoading(false);
         } catch (error) {
@@ -31,7 +31,7 @@ function KeywordManager({ refreshTrigger }) {
     const handleAdd = async () => {
         if (!newKeyword.word || !newKeyword.category) return;
         try {
-            await axios.post('http://localhost:8080/api/settings/keywords', newKeyword);
+            await api.post('/settings/keywords', newKeyword);
             setNewKeyword({ word: '', category: '', color: '#3b82f6' });
             fetchKeywords();
         } catch (error) {
@@ -41,7 +41,7 @@ function KeywordManager({ refreshTrigger }) {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:8080/api/settings/keywords/${id}`);
+            await api.delete(`/settings/keywords/${id}`);
             fetchKeywords();
         } catch (error) {
             console.error("Silme hatası", error);
@@ -60,7 +60,7 @@ function KeywordManager({ refreshTrigger }) {
 
     const saveEdit = async () => {
         try {
-            await axios.put(`http://localhost:8080/api/settings/keywords/${editingId}`, editForm);
+            await api.put(`/settings/keywords/${editingId}`, editForm);
             setEditingId(null);
             fetchKeywords();
         } catch (error) {
@@ -196,7 +196,7 @@ function UserAgentManager({ refreshTrigger }) {
 
     const fetchUserAgents = async () => {
         try {
-            const res = await axios.get('http://localhost:8080/api/settings/user-agents');
+            const res = await api.get('/settings/user-agents');
             setUserAgents(res.data);
             setLoading(false);
         } catch (error) {
@@ -208,7 +208,7 @@ function UserAgentManager({ refreshTrigger }) {
     const handleAdd = async () => {
         if (!newUA) return;
         try {
-            await axios.post('http://localhost:8080/api/settings/user-agents', { user_agent: newUA });
+            await api.post('/settings/user-agents', { user_agent: newUA });
             setNewUA('');
             fetchUserAgents();
         } catch (error) {
@@ -218,7 +218,7 @@ function UserAgentManager({ refreshTrigger }) {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:8080/api/settings/user-agents/${id}`);
+            await api.delete(`/settings/user-agents/${id}`);
             fetchUserAgents();
         } catch (error) {
             console.error("Silme hatası", error);
@@ -237,7 +237,7 @@ function UserAgentManager({ refreshTrigger }) {
 
     const saveEdit = async () => {
         try {
-            await axios.put(`http://localhost:8080/api/settings/user-agents/${editingId}`, { user_agent: editForm });
+            await api.put(`/settings/user-agents/${editingId}`, { user_agent: editForm });
             setEditingId(null);
             fetchUserAgents();
         } catch (error) {
@@ -334,7 +334,7 @@ function WatchlistManager({ refreshTrigger }) {
 
     const fetchWatchlist = async () => {
         try {
-            const res = await axios.get('http://localhost:8080/api/settings/watchlist');
+            const res = await api.get('/settings/watchlist');
             setWatchlist(res.data);
             setLoading(false);
         } catch (error) {
@@ -346,7 +346,7 @@ function WatchlistManager({ refreshTrigger }) {
     const handleAdd = async () => {
         if (!newWatch.url || !newWatch.interval) return;
         try {
-            await axios.post('http://localhost:8080/api/settings/watchlist', {
+            await api.post('/settings/watchlist', {
                 url: newWatch.url,
                 interval_minutes: parseInt(newWatch.interval),
                 description: newWatch.description
@@ -360,7 +360,7 @@ function WatchlistManager({ refreshTrigger }) {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:8080/api/settings/watchlist/${id}`);
+            await api.delete(`/settings/watchlist/${id}`);
             fetchWatchlist();
         } catch (error) {
             console.error("Silme hatası", error);
@@ -379,7 +379,7 @@ function WatchlistManager({ refreshTrigger }) {
 
     const saveEdit = async () => {
         try {
-            await axios.put(`http://localhost:8080/api/settings/watchlist/${editingId}`, {
+            await api.put(`/settings/watchlist/${editingId}`, {
                 url: editForm.url,
                 interval_minutes: parseInt(editForm.interval),
                 description: editForm.description
@@ -561,7 +561,7 @@ export default function SettingsPage() {
     const handleReset = async () => {
         setModalState(prev => ({ ...prev, step: 'LOADING' }));
         try {
-            await axios.post('http://localhost:8080/api/system/reset-db', resetOptions);
+            await api.post('/system/reset-db', resetOptions);
             setModalState({ isOpen: true, step: 'SUCCESS', message: "Seçilen veriler başarıyla temizlendi." });
             // Seçenekleri sıfırla
             setResetOptions({ history: false, logs: false, settings: false });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { FileText, RefreshCw, AlertTriangle, Info, Clock, Search, Filter, CheckCircle, AlertCircle, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -19,7 +19,7 @@ export default function LogsPage() {
 
     const fetchStats = async () => {
         try {
-            const res = await axios.get('http://localhost:8080/api/logs/stats');
+            const res = await api.get('/logs/stats');
             setStats({
                 total: res.data.total,
                 info: res.data.info,
@@ -35,7 +35,7 @@ export default function LogsPage() {
     const fetchLogs = async () => {
         setLoading(true);
         try {
-            const res = await axios.get('http://localhost:8080/api/logs');
+            const res = await api.get('/logs');
             setLogs(res.data);
         } catch (error) {
             console.error("Loglar yüklenemedi", error);

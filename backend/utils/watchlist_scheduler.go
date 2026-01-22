@@ -97,11 +97,9 @@ func saveWatchlistResult(db *gorm.DB, result *scraper.ScrapeResult, watchlistIte
 	// Site kaydı oluştur veya güncelle
 	site := models.Site{
 		URL:      result.URL,
-		IsForum:  true,
 		LastScan: time.Now(),
 	}
 	db.Where(models.Site{URL: result.URL}).Assign(models.Site{
-		IsForum:  true,
 		LastScan: time.Now(),
 	}).FirstOrCreate(&site)
 
@@ -125,7 +123,6 @@ func saveWatchlistResult(db *gorm.DB, result *scraper.ScrapeResult, watchlistIte
 				Link:     t.Link,
 				Author:   t.Author,
 				Date:     t.Date,
-				Content:  t.Content,
 				Category: t.Category,
 			}
 			db.Create(&thread)

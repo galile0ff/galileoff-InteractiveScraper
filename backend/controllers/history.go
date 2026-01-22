@@ -21,9 +21,10 @@ func NewHistoryController(db *gorm.DB) *HistoryController {
 func (ctrl *HistoryController) GetHistory(c *gin.Context) {
 
 	type HistoryItem struct {
-		ID           uint      `json:"id"`
-		URL          string    `json:"url"`
-		IsForum      bool      `json:"is_forum"`
+		ID  uint   `json:"id"`
+		URL string `json:"url"`
+
+		// IsForum      bool
 		Source       string    `json:"source"`
 		LastScan     time.Time `json:"last_scan"`
 		TotalThreads int       `json:"total_threads"`
@@ -36,7 +37,7 @@ func (ctrl *HistoryController) GetHistory(c *gin.Context) {
 
 	// 1. Temel verileri çek
 	ctrl.DB.Table("stats").
-		Select("stats.id, sites.url, sites.is_forum, stats.source, stats.scan_date as last_scan, stats.total_threads, stats.total_posts, (SELECT category FROM threads WHERE threads.stats_id = stats.id LIMIT 1) as category").
+		Select("stats.id, sites.url, stats.source, stats.scan_date as last_scan, stats.total_threads, stats.total_posts, (SELECT category FROM threads WHERE threads.stats_id = stats.id LIMIT 1) as category").
 		Joins("left join sites on stats.site_id = sites.id").
 		Order("stats.scan_date desc").
 		Scan(&history)

@@ -2,19 +2,15 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type Site struct {
-	ID        uint           `gorm:"primaryKey" json:"id"`
-	URL       string         `gorm:"uniqueIndex;not null" json:"url"`
-	IsForum   bool           `json:"is_forum"`
-	LastScan  time.Time      `json:"last_scan"`
-	Threads   []Thread       `json:"threads" gorm:"foreignKey:SiteID"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	URL       string    `gorm:"uniqueIndex;not null" json:"url"`
+	LastScan  time.Time `json:"last_scan"`
+	Threads   []Thread  `json:"threads" gorm:"foreignKey:SiteID;constraint:OnDelete:CASCADE;"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Stats struct {

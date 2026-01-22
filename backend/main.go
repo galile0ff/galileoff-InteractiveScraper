@@ -52,47 +52,59 @@ func main() {
 
 	api := r.Group("/api")
 	{
+		// --- Public Rotalar ---
 		api.GET("/health", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{"status": "ok"})
 		})
 
-		// Tarayıcı uç noktaları
-		scanCtrl := controllers.NewScanController(DB)
+		// Auth Controller
 		authCtrl := controllers.NewAuthController(DB)
-		statsCtrl := controllers.NewStatsController(DB)
-		historyCtrl := controllers.NewHistoryController(DB)
-		settingsCtrl := controllers.NewSettingsController(DB)
-
-		api.POST("/scan", scanCtrl.ScanSite)
 		api.POST("/login", authCtrl.Login)
-		api.GET("/stats/general", statsCtrl.GetGeneralStats)
-		api.GET("/logs", statsCtrl.GetSystemLogs)
-		api.GET("/logs/stats", statsCtrl.GetLogStats)
 
-		api.GET("/history", historyCtrl.GetHistory)
-		api.GET("/history/:id", historyCtrl.GetScanDetails)
+		// --- Protected Rotalar ---
+		protected := api.Group("/")
+		protected.Use(utils.AuthMiddleware())
+		{
+			// Controller Örnekleri
+			scanCtrl := controllers.NewScanController(DB)
+			statsCtrl := controllers.NewStatsController(DB)
+			historyCtrl := controllers.NewHistoryController(DB)
+			settingsCtrl := controllers.NewSettingsController(DB)
 
-		// Sistem İşlemleri
-		api.POST("/system/reset-db", settingsCtrl.ResetDatabase)
+			// Tarama
+			protected.POST("/scan", scanCtrl.ScanSite)
 
-		// Ayarlar (Keywords)
-		api.GET("/settings/keywords", settingsCtrl.GetKeywords)
-		api.POST("/settings/keywords", settingsCtrl.AddKeyword)
-		api.PUT("/settings/keywords/:id", settingsCtrl.UpdateKeyword)
-		api.DELETE("/settings/keywords/:id", settingsCtrl.DeleteKeyword)
+			// İstatistikler ve Loglar
+			protected.GET("/stats/general", statsCtrl.GetGeneralStats)
+			protected.GET("/logs", statsCtrl.GetSystemLogs)
+			protected.GET("/logs/stats", statsCtrl.GetLogStats)
 
-		// Ayarlar (User Agents)
-		api.GET("/settings/user-agents", settingsCtrl.GetUserAgents)
-		api.POST("/settings/user-agents", settingsCtrl.AddUserAgent)
-		api.PUT("/settings/user-agents/:id", settingsCtrl.UpdateUserAgent)
-		api.DELETE("/settings/user-agents/:id", settingsCtrl.DeleteUserAgent)
+			// Geçmiş
+			protected.GET("/history", historyCtrl.GetHistory)
+			protected.GET("/history/:id", historyCtrl.GetScanDetails)
 
-		// Ayarlar (Watchlist)
-		api.GET("/settings/watchlist", settingsCtrl.GetWatchlist)
-		api.POST("/settings/watchlist", settingsCtrl.AddWatchlistItem)
-		api.PUT("/settings/watchlist/toggle-all", settingsCtrl.ToggleAllWatchlist)
-		api.PUT("/settings/watchlist/:id", settingsCtrl.UpdateWatchlistItem)
-		api.DELETE("/settings/watchlist/:id", settingsCtrl.DeleteWatchlistItem)
+			// Sistem İşlemleri
+			protected.POST("/system/reset-db", settingsCtrl.ResetDatabase)
+
+			// Ayarlar (Keywords)
+			protected.GET("/settings/keywords", settingsCtrl.GetKeywords)
+			protected.POST("/settings/keywords", settingsCtrl.AddKeyword)
+			protected.PUT("/settings/keywords/:id", settingsCtrl.UpdateKeyword)
+			protected.DELETE("/settings/keywords/:id", settingsCtrl.DeleteKeyword)
+
+			// Ayarlar (User Agents)
+			protected.GET("/settings/user-agents", settingsCtrl.GetUserAgents)
+			protected.POST("/settings/user-agents", settingsCtrl.AddUserAgent)
+			protected.PUT("/settings/user-agents/:id", settingsCtrl.UpdateUserAgent)
+			protected.DELETE("/settings/user-agents/:id", settingsCtrl.DeleteUserAgent)
+
+			// Ayarlar (Watchlist)
+			protected.GET("/settings/watchlist", settingsCtrl.GetWatchlist)
+			protected.POST("/settings/watchlist", settingsCtrl.AddWatchlistItem)
+			protected.PUT("/settings/watchlist/toggle-all", settingsCtrl.ToggleAllWatchlist)
+			protected.PUT("/settings/watchlist/:id", settingsCtrl.UpdateWatchlistItem)
+			protected.DELETE("/settings/watchlist/:id", settingsCtrl.DeleteWatchlistItem)
+		}
 	}
 
 	port := os.Getenv("PORT")

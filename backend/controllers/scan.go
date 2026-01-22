@@ -130,11 +130,9 @@ func (sc *ScanController) processScanResult(c *gin.Context, result *scraper.Scra
 func (sc *ScanController) saveToDB(result *scraper.ScrapeResult) {
 	site := models.Site{
 		URL:      result.URL,
-		IsForum:  true,
 		LastScan: time.Now(),
 	}
 	sc.DB.Where(models.Site{URL: result.URL}).Assign(models.Site{
-		IsForum:  true,
 		LastScan: time.Now(),
 	}).FirstOrCreate(&site)
 
@@ -151,7 +149,7 @@ func (sc *ScanController) saveToDB(result *scraper.ScrapeResult) {
 		for _, t := range threads {
 			thread := models.Thread{
 				SiteID: siteID, StatsID: statsID, Title: t.Title, Link: t.Link,
-				Author: t.Author, Date: t.Date, Content: t.Content, Category: t.Category,
+				Author: t.Author, Date: t.Date, Category: t.Category,
 			}
 			sc.DB.Create(&thread)
 			for i, p := range t.Posts {

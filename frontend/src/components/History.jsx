@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { History, FileText, Calendar, X, MessageSquare, User, Clock, Filter, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import api from '../utils/api';
 
 export default function HistoryPage() {
     const [history, setHistory] = useState([]);
@@ -16,7 +16,7 @@ export default function HistoryPage() {
     const fetchHistory = async () => {
         setLoading(true);
         try {
-            const res = await axios.get('http://localhost:8080/api/history');
+            const res = await api.get('/history');
             setHistory(res.data || []);
         } catch (error) {
             console.error("Geçmiş verileri alınamadı", error);
@@ -47,7 +47,7 @@ export default function HistoryPage() {
         setSelectedSite(siteId);
         setDetailLoading(true);
         try {
-            const res = await axios.get(`http://localhost:8080/api/history/${siteId}`);
+            const res = await api.get(`/history/${siteId}`);
             setDetails(res.data);
         } catch (error) {
             console.error("Detaylar alınamadı", error);

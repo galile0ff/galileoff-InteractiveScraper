@@ -14,7 +14,7 @@
 *Siber Vatan Programı Yıldız CTI Ekibi görevi kapsamında geliştirilmiştir.*
 <p align="center">
   <a href="#-özellikler">🚀 Özellikler</a> •
-  <a href="#%EF%B8%8F-teknolojiler">🛠️ Teknolojiler</a> •
+  <a href="#%EF%B8%8F-teknolojiler-ve-mimari">🛠️ Teknolojiler</a> •
   <a href="#-kurulum-ve-çalıştırma">📦 Kurulum</a> •
   <a href="#-api-dokümantasyonu">📖 API</a> •
   <a href="#-ekran-görüntüleri">📸 Galeri</a>

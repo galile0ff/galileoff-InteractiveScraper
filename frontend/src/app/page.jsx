@@ -19,15 +19,6 @@ export default function Home() {
   const [scanResult, setScanResult] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      setIsAuthenticated(true);
-      // Sayfa yenilendiğinde son kalınan sekmeyi aç
-      const savedTab = localStorage.getItem('activeTab');
-      if (savedTab) {
-        setActiveTab(savedTab);
-      }
-    }
     setIsLoading(false);
   }, []);
 

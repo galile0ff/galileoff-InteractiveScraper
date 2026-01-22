@@ -401,10 +401,13 @@ func performScan(targetURL string, torProxy string, keywords []models.Keyword, u
 
 // GetActiveTorProxy, sistemde çalışan Tor bağlantısını (9050 veya 9150) tespit eder.
 func GetActiveTorProxy() (string, error) {
-	ports := []string{"9050", "9150"}
+	// Docker için host adreslerini de kontrol et
+	addresses := []string{
+		"127.0.0.1:9050", "127.0.0.1:9150",
+		"host.docker.internal:9050", "host.docker.internal:9150",
+	}
 
-	for _, port := range ports {
-		address := "127.0.0.1:" + port
+	for _, address := range addresses {
 		conn, err := net.DialTimeout("tcp", address, 500*time.Millisecond)
 		if err == nil {
 			conn.Close()

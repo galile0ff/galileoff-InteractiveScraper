@@ -28,7 +28,6 @@ api.interceptors.response.use(
             // Token geçersiz veya süresi dolmuş
             if (typeof window !== 'undefined') {
                 localStorage.removeItem('authToken');
-                window.location.reload(); // Sayfayı yenileyerek Login ekranına at
             }
         }
         return Promise.reject(error);

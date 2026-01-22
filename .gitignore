@@ -63,12 +63,12 @@ dist/
 next-env.d.ts
 
 # --- Veritabanı ---
-*.db
+# *.db  <-- github için
 *.db-journal
 *.sqlite
 *.sqlite3
-data/
-backend/data/
+# data/             <-- github için
+# backend/data/     <-- github için
 
 # --- Çevresel Değişkenler ---
 .env

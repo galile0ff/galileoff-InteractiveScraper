@@ -31,6 +31,7 @@ WORKDIR /app
 COPY --from=builder /app/scraper .
 COPY .env .
 
+
 # Entrypoint scriptini kopyala
 COPY entrypoint.sh .
 # Windows satır sonlarını Linux formatına çevir

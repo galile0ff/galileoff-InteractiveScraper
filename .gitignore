@@ -69,8 +69,3 @@ next-env.d.ts
 *.sqlite3
 # data/             <-- github için
 # backend/data/     <-- github için
-
-# --- Çevresel Değişkenler ---
-.env
-backend/.env
-frontend/.env

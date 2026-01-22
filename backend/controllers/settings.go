@@ -20,8 +20,27 @@ func NewSettingsController(db *gorm.DB) *SettingsController {
 	return &SettingsController{DB: db}
 }
 
-// ResetDatabase: Veritabanındaki tüm verileri temizler
+// ResetOptions: Silme seçenekleri
+type ResetOptions struct {
+	History  bool `json:"history"`
+	Logs     bool `json:"logs"`
+	Settings bool `json:"settings"`
+}
+
+// ResetDatabase: Veritabanındaki seçilen verileri temizler
 func (ctrl *SettingsController) ResetDatabase(c *gin.Context) {
+	var options ResetOptions
+	if err := c.ShouldBindJSON(&options); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Geçersiz istek formatı"})
+		return
+	}
+
+	// Eğer hiçbiri seçilmemişse
+	if !options.History && !options.Logs && !options.Settings {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "En az bir temizleme seçeneği işaretlenmelidir"})
+		return
+	}
+
 	// Transaction başlat
 	tx := ctrl.DB.Begin()
 
@@ -38,15 +57,42 @@ func (ctrl *SettingsController) ResetDatabase(c *gin.Context) {
 	}
 
 	// Tabloları temizle
-	tables := []string{"posts", "threads", "stats", "sites", "system_logs"}
+	var successMsg string
 
-	for _, table := range tables {
-		if err := tx.Exec("DELETE FROM " + table).Error; err != nil {
+	if options.History {
+		historyTables := []string{"posts", "threads", "stats", "sites"}
+		for _, table := range historyTables {
+			if err := tx.Exec("DELETE FROM " + table).Error; err != nil {
+				tx.Rollback()
+				utils.LogError(ctrl.DB, "SYSTEM", "Veritabanı geçmiş temizleme hatası: "+err.Error())
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Tablo temizlenemedi: " + table})
+				return
+			}
+		}
+		successMsg += "Geçmiş, "
+	}
+
+	if options.Logs {
+		if err := tx.Exec("DELETE FROM system_logs").Error; err != nil {
 			tx.Rollback()
-			utils.LogError(ctrl.DB, "SYSTEM", "Veritabanı sıfırlama hatası: "+err.Error())
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Tablo temizlenemedi: " + table})
+			utils.LogError(ctrl.DB, "SYSTEM", "Log temizleme hatası: "+err.Error())
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Loglar temizlenemedi"})
 			return
 		}
+		successMsg += "Loglar, "
+	}
+
+	if options.Settings {
+		settingsTables := []string{"keywords", "user_agents", "watchlists"}
+		for _, table := range settingsTables {
+			if err := tx.Exec("DELETE FROM " + table).Error; err != nil {
+				tx.Rollback()
+				utils.LogError(ctrl.DB, "SYSTEM", "Ayarlar sıfırlama hatası: "+err.Error())
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Ayarlar temizlenemedi: " + table})
+				return
+			}
+		}
+		successMsg += "Ayarlar, "
 	}
 
 	if err := tx.Commit().Error; err != nil {
@@ -55,8 +101,12 @@ func (ctrl *SettingsController) ResetDatabase(c *gin.Context) {
 		return
 	}
 
-	utils.LogSuccess(ctrl.DB, "SYSTEM", "Sistem veritabanı başarıyla sıfırlandı.")
-	c.JSON(http.StatusOK, gin.H{"message": "Veritabanı başarıyla sıfırlandı."})
+	if len(successMsg) > 2 {
+		successMsg = successMsg[:len(successMsg)-2] // Son virgülü kaldır
+	}
+
+	utils.LogSuccess(ctrl.DB, "SYSTEM", "Sistem veritabanı temizlendi: "+successMsg)
+	c.JSON(http.StatusOK, gin.H{"message": "Veritabanı temizlendi: " + successMsg})
 }
 
 // GetKeywords: Tüm anahtar kelimeleri listeler

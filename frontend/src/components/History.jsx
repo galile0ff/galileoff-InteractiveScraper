@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
-import { History, FileText, Calendar, X, MessageSquare, User, Clock, Filter } from 'lucide-react';
+import { History, FileText, Calendar, X, MessageSquare, User, Clock, Filter, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
@@ -13,29 +13,32 @@ export default function HistoryPage() {
     const [detailLoading, setDetailLoading] = useState(false);
     const [selectedTag, setSelectedTag] = useState('ALL');
 
-    useEffect(() => {
-        const fetchHistory = async () => {
-            try {
-                const res = await axios.get('http://localhost:8080/api/history');
-                setHistory(res.data);
-            } catch (error) {
-                console.error("Geçmiş verileri alınamadı", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchHistory = async () => {
+        setLoading(true);
+        try {
+            const res = await axios.get('http://localhost:8080/api/history');
+            setHistory(res.data || []);
+        } catch (error) {
+            console.error("Geçmiş verileri alınamadı", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchHistory();
     }, []);
 
     // Benzersiz etiketleri hesapla
     const uniqueTags = useMemo(() => {
+        if (!history) return ['ALL'];
         const tags = new Set(history.map(item => item.category).filter(Boolean));
         return ['ALL', ...Array.from(tags)];
     }, [history]);
 
     // Filtrelenmiş geçmiş verisi
     const filteredHistory = useMemo(() => {
+        if (!history) return [];
         if (selectedTag === 'ALL') return history;
         return history.filter(item => item.category === selectedTag);
     }, [history, selectedTag]);
@@ -67,66 +70,77 @@ export default function HistoryPage() {
     return (
         <div className="w-full max-w-7xl mx-auto pt-10 font-mono relative">
             {/* Başlık */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+            {/* Başlık */}
+            <div className="flex flex-col md:flex-row justify-between items-end border-b border-zinc-800 pb-6 gap-4 mb-8">
                 <div>
                     <h1 className="text-2xl font-bold text-white tracking-tighter flex items-center gap-3">
                         <History className="text-blue-500" size={28} />
                         TARAMA GEÇMİŞİ
                     </h1>
-                    <p className="text-xs text-zinc-400 mt-1 uppercase tracking-widest pl-10">
+                    <p className="text-xs text-zinc-400 mt-2 uppercase tracking-widest pl-1">
                         ARŞİV KAYITLARI: <span className="text-white">{filteredHistory ? filteredHistory.length : 0}</span>
                         {history.length !== filteredHistory.length && <span className="text-zinc-500 ml-2">(Toplam: {history.length})</span>}
                     </p>
                 </div>
 
-                {/* Filtreleme Menüsü */}
-                {history.length > 0 && uniqueTags.length > 1 && (
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="flex flex-col sm:flex-row items-start sm:items-center gap-3"
-                    >
-                        <div className="flex items-center gap-2 p-1.5 rounded-xl border border-white/10 bg-zinc-900/60 backdrop-blur-md shadow-xl overflow-x-auto max-w-full scrollbar-hide">
-                            <span className="text-[10px] text-zinc-500 font-bold px-3 py-1 flex items-center gap-1.5 border-r border-white/5 mr-1 uppercase tracking-wider">
-                                <Filter size={12} className="text-emerald-500" />
-                                <span className="hidden sm:inline">FİLTRE</span>
-                            </span>
-                            {uniqueTags.map(tag => {
-                                // Etiket rengini bul
-                                const tagItem = history.find(h => h.category === tag);
-                                const color = tagItem?.color || '#a855f7';
-                                const active = selectedTag === tag;
-                                const isAll = tag === 'ALL';
+                <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+                    {/* Filtreleme Menüsü */}
+                    {history.length > 0 && uniqueTags.length > 1 && (
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="flex items-center gap-2"
+                        >
+                            <div className="flex items-center gap-2 p-1.5 rounded-xl border border-white/10 bg-zinc-900/60 backdrop-blur-md shadow-xl overflow-x-auto max-w-full scrollbar-hide">
+                                <span className="text-[10px] text-zinc-500 font-bold px-3 py-1 flex items-center gap-1.5 border-r border-white/5 mr-1 uppercase tracking-wider">
+                                    <Filter size={12} className="text-emerald-500" />
+                                    <span className="hidden sm:inline">FİLTRE</span>
+                                </span>
+                                {uniqueTags.map(tag => {
+                                    // Etiket rengini bul
+                                    const tagItem = history.find(h => h.category === tag);
+                                    const color = tagItem?.color || '#a855f7';
+                                    const active = selectedTag === tag;
+                                    const isAll = tag === 'ALL';
 
-                                return (
-                                    <button
-                                        key={tag}
-                                        onClick={() => setSelectedTag(tag)}
-                                        className={`
-                                            px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap border
-                                            ${active
-                                                ? 'bg-opacity-20 border-opacity-50 text-opacity-100 shadow-[0_0_10px_rgba(0,0,0,0.2)]'
-                                                : 'border-transparent text-zinc-400 hover:text-white hover:bg-white/5'}
-                                        `}
-                                        style={active && !isAll ? {
-                                            backgroundColor: `${color}33`, // %20 opacity
-                                            borderColor: `${color}80`, // %50 opacity
-                                            color: color,
-                                            boxShadow: `0 0 10px ${color}33`
-                                        } : active && isAll ? {
-                                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                                            borderColor: 'rgba(59, 130, 246, 0.5)',
-                                            color: '#60a5fa',
-                                            boxShadow: '0 0 10px rgba(59, 130, 246, 0.2)'
-                                        } : {}}
-                                    >
-                                        {tag === 'ALL' ? 'TÜMÜ' : tag}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </motion.div>
-                )}
+                                    return (
+                                        <button
+                                            key={tag}
+                                            onClick={() => setSelectedTag(tag)}
+                                            className={`
+                                                px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap border
+                                                ${active
+                                                    ? 'bg-opacity-20 border-opacity-50 text-opacity-100 shadow-[0_0_10px_rgba(0,0,0,0.2)]'
+                                                    : 'border-transparent text-zinc-400 hover:text-white hover:bg-white/5'}
+                                            `}
+                                            style={active && !isAll ? {
+                                                backgroundColor: `${color}33`, // %20 opacity
+                                                borderColor: `${color}80`, // %50 opacity
+                                                color: color,
+                                                boxShadow: `0 0 10px ${color}33`
+                                            } : active && isAll ? {
+                                                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                                                borderColor: 'rgba(59, 130, 246, 0.5)',
+                                                color: '#60a5fa',
+                                                boxShadow: '0 0 10px rgba(59, 130, 246, 0.2)'
+                                            } : {}}
+                                        >
+                                            {tag === 'ALL' ? 'TÜMÜ' : tag}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </motion.div>
+                    )}
+
+                    <button
+                        onClick={fetchHistory}
+                        className="p-2 bg-zinc-900 hover:bg-zinc-800 rounded-lg text-zinc-400 hover:text-white transition-colors border border-zinc-800 h-[46px] w-[42px] flex items-center justify-center custom-refresh-btn"
+                        title="Yenile"
+                    >
+                        <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
+                    </button>
+                </div>
             </div>
 
             {/* Tablo */}

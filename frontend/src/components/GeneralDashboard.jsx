@@ -99,16 +99,32 @@ export default function GeneralDashboard() {
     );
 
     const SystemMetric = ({ label, value, percentage, icon: Icon, color }) => (
-        <div className="flex items-center justify-between p-3 bg-zinc-950/50 border border-zinc-900 rounded-sm">
-            <div className="flex items-center gap-3">
-                <Icon size={14} className={color} />
-                <span className="text-[11px] text-zinc-400 font-mono uppercase">{label}</span>
-            </div>
-            <div className="flex items-center gap-3">
-                <div className="w-24 h-1.5 bg-zinc-900 rounded-full overflow-hidden">
-                    <div className={`h-full ${color.replace('text-', 'bg-')} rounded-full`} style={{ width: `${typeof percentage === 'number' ? percentage : 100}%` }} />
+        <div className="group relative overflow-hidden rounded-xl bg-white/5 border border-white/5 p-4 hover:bg-white/10 transition-all duration-300 hover:border-white/10 hover:shadow-lg hover:shadow-black/20">
+            {/* Background Gradient */}
+            <div className={`absolute -right-4 -top-4 w-24 h-24 bg-gradient-to-br ${color.replace('text-', 'from-')}/20 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+
+            <div className="relative z-10 flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg bg-black/20 ring-1 ring-white/5 ${color} bg-opacity-10`}>
+                        <Icon size={16} />
+                    </div>
+                    <span className="text-xs font-bold text-zinc-300 tracking-wide">{label}</span>
                 </div>
-                <span className="text-[11px] text-white font-mono min-w-[30px] text-right">{value}</span>
+                <span className="text-xs font-bold text-white font-mono bg-black/30 px-2 py-1 rounded border border-white/5 min-w-[3rem] text-center">
+                    {value}
+                </span>
+            </div>
+
+            {/* Progress Bar Container */}
+            <div className="h-1.5 w-full bg-black/40 rounded-full overflow-hidden backdrop-blur-sm border border-white/5">
+                {/* Progress Bar */}
+                <div
+                    className={`h-full ${color.replace('text-', 'bg-')} rounded-full relative overflow-hidden transition-all duration-500`}
+                    style={{ width: `${typeof percentage === 'number' ? percentage : 100}%` }}
+                >
+                    {/* Shimmer Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent w-full -translate-x-full animate-[shimmer_2s_infinite]" />
+                </div>
             </div>
         </div>
     );
@@ -295,64 +311,6 @@ export default function GeneralDashboard() {
                 {/* Sağ Kolon - Yan Paneller */}
                 <div className="space-y-6">
 
-                    {/* Sistem Durumu */}
-                    <div className="glass-panel p-6">
-                        <h3 className="text-xs text-zinc-400 font-bold uppercase tracking-widest mb-6 flex items-center gap-2">
-                            <Server size={14} className="text-emerald-500" />
-                            Sistem Sağlığı
-                        </h3>
-                        <div className="space-y-3">
-                            <SystemMetric label="CPU KULLANIMI" value={`${stats.system_status?.cpu || 0}%`} percentage={stats.system_status?.cpu || 0} icon={Cpu} color="text-blue-500" />
-                            <SystemMetric label="BELLEK" value={`${stats.system_status?.memory || 0}%`} percentage={stats.system_status?.memory || 0} icon={HardDrive} color="text-purple-500" />
-                            <SystemMetric label="AĞ GECİKMESİ" value="İyi" icon={Wifi} color="text-emerald-500" />
-                            <SystemMetric label="BACKEND ZAMANI" value={stats.system_status?.uptime || "0h"} icon={Zap} color="text-amber-500" />
-                        </div>
-                    </div>
-
-                    {/* Hedef Dağılımı Pie Chart */}
-                    <div className="glass-panel p-6 flex flex-col items-center">
-                        <h3 className="text-xs text-zinc-400 font-bold uppercase tracking-widest mb-4 w-full text-left flex items-center gap-2">
-                            <Activity size={14} className="text-purple-500" />
-                            İçerik Dağılımı
-                        </h3>
-                        <div className="w-[200px] h-[200px] relative">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={distributionData}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={80}
-                                        paddingAngle={5}
-                                        dataKey="value"
-                                    >
-                                        {distributionData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="rgba(0,0,0,0)" />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: '#09090b', borderColor: '#27272a', color: '#fff', fontSize: '10px' }}
-                                    />
-                                </PieChart>
-                            </ResponsiveContainer>
-                            {/* Ortadaki Yazı */}
-                            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                <span className="text-2xl font-bold text-white">{(stats.thread_count || 0) + (stats.post_count || 0)}</span>
-                                <span className="text-[11px] text-zinc-400 uppercase">VERİ</span>
-                            </div>
-                        </div>
-                        <div className="flex gap-4 mt-4 w-full justify-center">
-                            {distributionData.map((entry, index) => (
-                                <div key={entry.name} className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index] }} />
-                                    <span className="text-xs text-zinc-400 uppercase">{entry.name}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-
                     {/* Terminal Log */}
                     <div className="border border-zinc-800 bg-[#09090b] rounded-md overflow-hidden flex flex-col h-[400px] shadow-2xl font-mono text-xs relative group">
                         {/* Status Bar */}
@@ -420,6 +378,64 @@ export default function GeneralDashboard() {
                         <div className="px-3 py-1 bg-zinc-900/50 border-t border-zinc-800 flex justify-between items-center text-[9px] text-zinc-600 font-mono">
                             <span>memory_usage: {(stats?.system_status?.memory || 0)}%</span>
                             <span className="animate-pulse text-red-600">● REC</span>
+                        </div>
+                    </div>
+
+                    {/* Hedef Dağılımı Pie Chart */}
+                    <div className="glass-panel p-6 flex flex-col items-center">
+                        <h3 className="text-xs text-zinc-400 font-bold uppercase tracking-widest mb-4 w-full text-left flex items-center gap-2">
+                            <Activity size={14} className="text-purple-500" />
+                            İçerik Dağılımı
+                        </h3>
+                        <div className="w-[200px] h-[200px] relative">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={distributionData}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={60}
+                                        outerRadius={80}
+                                        paddingAngle={5}
+                                        dataKey="value"
+                                    >
+                                        {distributionData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="rgba(0,0,0,0)" />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#09090b', borderColor: '#27272a', color: '#fff', fontSize: '10px' }}
+                                    />
+                                </PieChart>
+                            </ResponsiveContainer>
+                            {/* Ortadaki Yazı */}
+                            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                <span className="text-2xl font-bold text-white">{(stats.thread_count || 0) + (stats.post_count || 0)}</span>
+                                <span className="text-[11px] text-zinc-400 uppercase">VERİ</span>
+                            </div>
+                        </div>
+                        <div className="flex gap-4 mt-4 w-full justify-center">
+                            {distributionData.map((entry, index) => (
+                                <div key={entry.name} className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index] }} />
+                                    <span className="text-xs text-zinc-400 uppercase">{entry.name}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Sistem Durumu */}
+                    <div className="glass-panel overflow-hidden shadow-2xl">
+                        <div className="p-6 border-b border-white/5 bg-white/[0.02]">
+                            <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+                                <Server size={16} /> SİSTEM SAĞLIĞI
+                            </h2>
+                        </div>
+                        <div className="p-6 space-y-3">
+                            <SystemMetric label="CPU KULLANIMI" value={`${stats.system_status?.cpu || 0}%`} percentage={stats.system_status?.cpu || 0} icon={Cpu} color="text-blue-500" />
+                            <SystemMetric label="BELLEK" value={`${stats.system_status?.memory || 0}%`} percentage={stats.system_status?.memory || 0} icon={HardDrive} color="text-purple-500" />
+                            <SystemMetric label="AĞ GECİKMESİ" value="İyi" icon={Wifi} color="text-emerald-500" />
+                            <SystemMetric label="BACKEND ZAMANI" value={stats.system_status?.uptime || "0h"} icon={Zap} color="text-amber-500" />
                         </div>
                     </div>
 

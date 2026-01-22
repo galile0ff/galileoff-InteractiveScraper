@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Settings, Shield, Server, Database, Save, Power, Eye, Lock, Edit2, Trash2, Plus, X, Check, Tag, RefreshCw, Layers, Clock } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Settings, Server, Database, Save, Power, Eye, Lock, Edit2, Trash2, Plus, X, Check, Tag, RefreshCw, Layers, Clock } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-function KeywordManager() {
+function KeywordManager({ refreshTrigger }) {
     const [keywords, setKeywords] = useState([]);
     const [loading, setLoading] = useState(true);
     const [newKeyword, setNewKeyword] = useState({ word: '', category: '', color: '#3b82f6' });
@@ -15,7 +15,7 @@ function KeywordManager() {
     // Verileri Çek
     useEffect(() => {
         fetchKeywords();
-    }, []);
+    }, [refreshTrigger]);
 
     const fetchKeywords = async () => {
         try {
@@ -96,13 +96,13 @@ function KeywordManager() {
                                         <input
                                             value={editForm.word}
                                             onChange={e => setEditForm({ ...editForm, word: e.target.value })}
-                                            className="bg-black/80 border border-zinc-600 rounded px-2 py-1 text-xs text-white w-32 font-bold"
+                                            className="bg-white/5 border border-zinc-600 rounded px-2 py-1 text-xs text-white w-32 font-bold"
                                             placeholder="Kelime"
                                         />
                                         <input
                                             value={editForm.category}
                                             onChange={e => setEditForm({ ...editForm, category: e.target.value })}
-                                            className="bg-black/80 border border-zinc-600 rounded px-2 py-1 text-xs text-white w-24 font-bold"
+                                            className="bg-white/5 border border-zinc-600 rounded px-2 py-1 text-xs text-white w-24 font-bold"
                                             placeholder="Kategori"
                                         />
                                         <input
@@ -147,7 +147,7 @@ function KeywordManager() {
                             type="text"
                             value={newKeyword.word}
                             onChange={(e) => setNewKeyword({ ...newKeyword, word: e.target.value })}
-                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-medium placeholder-zinc-600"
+                            className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-medium placeholder-zinc-600"
                             placeholder="Örn: hack, spoof, apt..."
                         />
                     </div>
@@ -157,7 +157,7 @@ function KeywordManager() {
                             type="text"
                             value={newKeyword.category}
                             onChange={(e) => setNewKeyword({ ...newKeyword, category: e.target.value })}
-                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-medium placeholder-zinc-600"
+                            className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-medium placeholder-zinc-600"
                             placeholder="Örn: Hacking"
                         />
                     </div>
@@ -167,7 +167,7 @@ function KeywordManager() {
                             type="color"
                             value={newKeyword.color}
                             onChange={(e) => setNewKeyword({ ...newKeyword, color: e.target.value })}
-                            className="h-[34px] w-12 bg-black/50 border border-white/10 rounded px-1 cursor-pointer"
+                            className="h-[34px] w-12 bg-white/5 border border-white/10 rounded px-1 cursor-pointer"
                         />
                     </div>
                     <button
@@ -183,7 +183,7 @@ function KeywordManager() {
     );
 }
 
-function UserAgentManager() {
+function UserAgentManager({ refreshTrigger }) {
     const [userAgents, setUserAgents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [newUA, setNewUA] = useState('');
@@ -192,7 +192,7 @@ function UserAgentManager() {
 
     useEffect(() => {
         fetchUserAgents();
-    }, []);
+    }, [refreshTrigger]);
 
     const fetchUserAgents = async () => {
         try {
@@ -272,7 +272,7 @@ function UserAgentManager() {
                                         <input
                                             value={editForm}
                                             onChange={e => setEditForm(e.target.value)}
-                                            className="flex-1 bg-black/80 border border-zinc-600 rounded px-2 py-1 text-xs text-white font-mono"
+                                            className="flex-1 bg-white/5 border border-zinc-600 rounded px-2 py-1 text-xs text-white font-mono"
                                             placeholder="Mozilla/5.0..."
                                         />
                                         <button onClick={saveEdit} className="p-1 hover:text-emerald-500 text-zinc-400"><Check size={14} /></button>
@@ -304,7 +304,7 @@ function UserAgentManager() {
                             type="text"
                             value={newUA}
                             onChange={(e) => setNewUA(e.target.value)}
-                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-medium placeholder-zinc-600 font-mono"
+                            className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-medium placeholder-zinc-600 font-mono"
                             placeholder="Mozilla/5.0..."
                         />
                     </div>
@@ -321,7 +321,7 @@ function UserAgentManager() {
     );
 }
 
-function WatchlistManager() {
+function WatchlistManager({ refreshTrigger }) {
     const [watchlist, setWatchlist] = useState([]);
     const [loading, setLoading] = useState(true);
     const [newWatch, setNewWatch] = useState({ url: '', interval: '60', description: '' });
@@ -330,7 +330,7 @@ function WatchlistManager() {
 
     useEffect(() => {
         fetchWatchlist();
-    }, []);
+    }, [refreshTrigger]);
 
     const fetchWatchlist = async () => {
         try {
@@ -426,21 +426,21 @@ function WatchlistManager() {
                                         <input
                                             value={editForm.url}
                                             onChange={e => setEditForm({ ...editForm, url: e.target.value })}
-                                            className="bg-black/80 border border-zinc-600 rounded px-2 py-1 text-xs text-white flex-1 min-w-[200px] font-mono"
+                                            className="bg-white/5 border border-zinc-600 rounded px-2 py-1 text-xs text-white flex-1 min-w-[200px] font-mono"
                                             placeholder="galileoff.onion"
                                         />
                                         <input
                                             type="number"
                                             value={editForm.interval}
                                             onChange={e => setEditForm({ ...editForm, interval: e.target.value })}
-                                            className="bg-black/80 border border-zinc-600 rounded px-2 py-1 text-xs text-white w-20 font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            className="bg-white/5 border border-zinc-600 rounded px-2 py-1 text-xs text-white w-20 font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                             placeholder="60"
                                             min="1"
                                         />
                                         <input
                                             value={editForm.description}
                                             onChange={e => setEditForm({ ...editForm, description: e.target.value })}
-                                            className="bg-black/80 border border-zinc-600 rounded px-2 py-1 text-xs text-white flex-1 min-w-[150px]"
+                                            className="bg-white/5 border border-zinc-600 rounded px-2 py-1 text-xs text-white flex-1 min-w-[150px]"
                                             placeholder="Açıklama (opsiyonel)"
                                         />
                                         <button onClick={saveEdit} className="p-1 hover:text-emerald-500 text-zinc-400"><Check size={14} /></button>
@@ -483,7 +483,7 @@ function WatchlistManager() {
                             type="url"
                             value={newWatch.url}
                             onChange={(e) => setNewWatch({ ...newWatch, url: e.target.value })}
-                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-mono placeholder-zinc-600"
+                            className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-mono placeholder-zinc-600"
                             placeholder="galileoff.onion"
                         />
                     </div>
@@ -493,7 +493,7 @@ function WatchlistManager() {
                             type="number"
                             value={newWatch.interval}
                             onChange={(e) => setNewWatch({ ...newWatch, interval: e.target.value })}
-                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-bold placeholder-zinc-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors font-bold placeholder-zinc-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             placeholder="60"
                             min="1"
                         />
@@ -504,7 +504,7 @@ function WatchlistManager() {
                             type="text"
                             value={newWatch.description}
                             onChange={(e) => setNewWatch({ ...newWatch, description: e.target.value })}
-                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors placeholder-zinc-600"
+                            className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors placeholder-zinc-600"
                             placeholder="Örn: APT Grup Forumu"
                         />
                     </div>
@@ -537,26 +537,38 @@ export default function SettingsPage() {
         setConfig(prev => ({ ...prev, randomUA: savedRandomUA, watchlistEnabled: savedWatchlistEnabled }));
     }, []);
 
-    const [showResetConfirm, setShowResetConfirm] = useState(false);
-    const [resetLoading, setResetLoading] = useState(false);
-    const [notification, setNotification] = useState({ type: null, message: null });
+    const [modalState, setModalState] = useState({
+        isOpen: false,
+        step: 'CONFIRM', // 'CONFIRM', 'LOADING', 'SUCCESS', 'ERROR'
+        message: null
+    });
 
-    const showNotification = (type, message) => {
-        setNotification({ type, message });
-        setTimeout(() => setNotification({ type: null, message: null }), 5000);
+    const [resetOptions, setResetOptions] = useState({
+        history: false,
+        logs: false,
+        settings: false
+    });
+
+    const openResetModal = () => {
+        setModalState({ isOpen: true, step: 'CONFIRM', message: null });
+        setResetOptions({ history: false, logs: false, settings: false });
+    };
+
+    const closeModal = () => {
+        setModalState({ isOpen: false, step: 'CONFIRM', message: null });
     };
 
     const handleReset = async () => {
-        setResetLoading(true);
+        setModalState(prev => ({ ...prev, step: 'LOADING' }));
         try {
-            await axios.delete('http://localhost:8080/api/system/reset-db');
-            showNotification('success', "Veritabanı başarıyla sıfırlandı ve temizlendi.");
-            setShowResetConfirm(false);
+            await axios.post('http://localhost:8080/api/system/reset-db', resetOptions);
+            setModalState({ isOpen: true, step: 'SUCCESS', message: "Seçilen veriler başarıyla temizlendi." });
+            // Seçenekleri sıfırla
+            setResetOptions({ history: false, logs: false, settings: false });
         } catch (error) {
             console.error("Sıfırlama hatası:", error);
-            showNotification('error', "İşlem başarısız oldu: " + (error.response?.data?.error || error.message));
-        } finally {
-            setResetLoading(false);
+            const errMsg = error.response?.data?.error || error.message;
+            setModalState({ isOpen: true, step: 'ERROR', message: "İşlem başarısız oldu: " + errMsg });
         }
     };
 
@@ -580,115 +592,183 @@ export default function SettingsPage() {
         </div>
     );
 
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+
     return (
         <div className="w-full max-w-5xl mx-auto pt-10 font-mono relative">
-            {/* Modal Overlay */}
-            {showResetConfirm && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    {/* Backdrop */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => setShowResetConfirm(false)}
-                        className="absolute inset-0 bg-black/60 backdrop-blur-md"
-                    />
+            {/* Unified Glass Modal */}
+            <AnimatePresence>
+                {modalState.isOpen && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={modalState.step === 'LOADING' ? null : closeModal}
+                            className="absolute inset-0 bg-black/40 backdrop-blur-md"
+                        />
 
-                    {/* Modal Box */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        className="relative z-10 w-full max-w-md bg-zinc-900/40 border border-white/10 p-8 rounded-xl shadow-2xl backdrop-blur-xl ring-1 ring-white/5"
-                    >
-                        <div className="flex flex-col items-center text-center space-y-4">
-                            <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20 mb-2">
-                                <Database size={32} className="text-red-500" />
+                        {/* Modal Box */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="relative z-10 w-full max-w-lg bg-black/80 border border-white/10 p-1 rounded-3xl shadow-2xl backdrop-blur-xl ring-1 ring-white/10 overflow-hidden"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none" />
+
+                            <div className="bg-black/20 p-8 rounded-[20px] relative z-10">
+                                {/* CONFIRM STEP */}
+                                {modalState.step === 'CONFIRM' && (
+                                    <div className="flex flex-col items-center text-center space-y-6">
+                                        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-red-500/20 to-red-900/20 flex items-center justify-center border border-red-500/30 mb-2 shadow-[0_0_30px_rgba(239,68,68,0.15)] relative group">
+                                            <div className="absolute inset-0 rounded-full border border-white/10 opacity-50" />
+                                            <Database size={36} className="text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
+                                        </div>
+
+                                        <div>
+                                            <h3 className="text-2xl font-bold text-white tracking-tight mb-2">Veritabanı Temizliği</h3>
+                                            <p className="text-sm text-zinc-400 leading-relaxed font-light">
+                                                Silinecek veri türlerini seçin. <br /><span className="text-red-400/80 font-medium">Bu işlem geri alınamaz.</span>
+                                            </p>
+                                        </div>
+
+                                        <div className="w-full grid gap-3 text-left">
+                                            {/* Options */}
+                                            {[
+                                                { id: 'history', label: 'TARAMA GEÇMİŞİ', desc: 'Threads, posts, istatistikler', checked: resetOptions.history },
+                                                { id: 'logs', label: 'SİSTEM LOGLARI', desc: 'Sistem logları, hata raporları', checked: resetOptions.logs },
+                                                { id: 'settings', label: 'AYARLAR VE VERİLER', desc: 'Keywords, User Agents, Watchlist', checked: resetOptions.settings }
+                                            ].map((item) => (
+                                                <label
+                                                    key={item.id}
+                                                    onClick={() => setResetOptions({ ...resetOptions, [item.id]: !item.checked })}
+                                                    className={`group flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-300 relative overflow-hidden
+                                                    ${item.checked
+                                                            ? 'bg-red-500/10 border-red-500/30 shadow-[0_0_20px_rgba(220,38,38,0.1)]'
+                                                            : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10'}`}
+                                                >
+                                                    <div className={`
+                                                        w-5 h-5 rounded-full border flex items-center justify-center transition-all duration-300
+                                                        ${item.checked
+                                                            ? 'bg-red-500 border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.4)]'
+                                                            : 'border-zinc-600 bg-black/20 group-hover:border-zinc-500'}
+                                                    `}>
+                                                        {item.checked && <Check size={12} className="text-white stroke-[4]" />}
+                                                    </div>
+
+                                                    <div className="flex-1">
+                                                        <div className={`text-xs font-bold tracking-wider transition-colors duration-300 ${item.checked ? 'text-red-400' : 'text-white'}`}>
+                                                            {item.label}
+                                                        </div>
+                                                        <div className="text-[10px] text-zinc-500 font-medium mt-0.5">{item.desc}</div>
+                                                    </div>
+
+                                                    {/* Glow Effect */}
+                                                    {item.checked && <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/10 blur-2xl -mr-8 -mt-8 rounded-full pointer-events-none" />}
+                                                </label>
+                                            ))}
+                                        </div>
+
+                                        <div className="flex gap-3 w-full pt-4">
+                                            <button
+                                                onClick={closeModal}
+                                                className="flex-1 py-3.5 bg-zinc-800/50 hover:bg-zinc-800 border border-white/5 hover:border-white/10 text-white text-xs font-bold rounded-xl transition-all uppercase tracking-wide"
+                                            >
+                                                İptal Et
+                                            </button>
+                                            <button
+                                                onClick={handleReset}
+                                                disabled={!resetOptions.history && !resetOptions.logs && !resetOptions.settings}
+                                                className="flex-1 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-red-900/30 hover:shadow-red-900/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2 uppercase tracking-wide relative overflow-hidden group"
+                                            >
+                                                <span className="relative z-10">Seçilenleri Sil</span>
+                                                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* LOADING STEP */}
+                                {modalState.step === 'LOADING' && (
+                                    <div className="flex flex-col items-center text-center py-12">
+                                        <div className="relative mb-8">
+                                            <div className="absolute inset-0 bg-red-500/20 blur-2xl rounded-full animate-pulse" />
+                                            <div className="w-16 h-16 border-4 border-red-500/30 border-t-red-500 rounded-full animate-spin relative z-10" />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-white mb-2 tracking-tight">Temizleniyor...</h3>
+                                        <p className="text-sm text-zinc-500 font-light">Veritabanı optimize ediliyor</p>
+                                    </div>
+                                )}
+
+                                {/* SUCCESS/ERROR STEP */}
+                                {(modalState.step === 'SUCCESS' || modalState.step === 'ERROR') && (
+                                    <div className="flex flex-col items-center text-center py-6">
+                                        <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 border-2 shadow-[0_0_40px_rgba(0,0,0,0.3)] relative ${modalState.step === 'SUCCESS'
+                                            ? 'bg-gradient-to-br from-emerald-500/20 to-emerald-900/20 border-emerald-500/30 text-emerald-400'
+                                            : 'bg-gradient-to-br from-red-500/20 to-red-900/20 border-red-500/30 text-red-500'
+                                            }`}>
+                                            {modalState.step === 'SUCCESS' ? <Check size={40} className="drop-shadow-md" /> : <X size={40} className="drop-shadow-md" />}
+
+                                            {/* Glow Ring */}
+                                            <div className={`absolute inset-0 rounded-full blur-xl opacity-40 ${modalState.step === 'SUCCESS' ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                                        </div>
+
+                                        <h3 className={`text-2xl font-bold mb-3 tracking-tight ${modalState.step === 'SUCCESS' ? 'text-white' : 'text-red-400'}`}>
+                                            {modalState.step === 'SUCCESS' ? 'İşlem Başarılı' : 'Hata Oluştu'}
+                                        </h3>
+
+                                        <p className="text-sm text-zinc-400 mb-8 leading-relaxed max-w-[90%] font-light border p-4 rounded-xl border-white/5 bg-black/20">
+                                            {modalState.message}
+                                        </p>
+
+                                        <button
+                                            onClick={closeModal}
+                                            className="w-full py-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white text-xs font-bold rounded-xl transition-all uppercase tracking-widest hover:tracking-[0.2em] duration-300"
+                                        >
+                                            Pencereyi Kapat
+                                        </button>
+                                    </div>
+                                )}
                             </div>
-
-                            <h3 className="text-xl font-bold text-white tracking-tight">Emin misiniz?</h3>
-
-                            <p className="text-sm text-zinc-400 leading-relaxed">
-                                Bu işlem geri alınamaz. Kaydedilmiş <span className="text-white font-bold">tüm tarama geçmişi, içerikler ve loglar</span> kalıcı olarak silinecektir.
-                            </p>
-
-                            <div className="flex gap-3 w-full pt-4">
-                                <button
-                                    onClick={() => setShowResetConfirm(false)}
-                                    className="flex-1 py-3 bg-white/5 hover:bg-white/10 border border-white/5 text-white text-xs font-bold rounded transition-colors"
-                                >
-                                    İPTAL ET
-                                </button>
-                                <button
-                                    onClick={handleReset}
-                                    disabled={resetLoading}
-                                    className="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded transition-colors shadow-lg shadow-red-900/20 disabled:opacity-50 flex items-center justify-center gap-2"
-                                >
-                                    {resetLoading ? (
-                                        <>
-                                            <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            SİLİNİYOR...
-                                        </>
-                                    ) : (
-                                        "EVET, SIFIRLA"
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-                    </motion.div>
-                </div>
-            )}
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
 
             {/* Başlık */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col md:flex-row justify-between items-end border-b border-zinc-800 pb-6 gap-4 mb-8">
                 <div>
                     <h1 className="text-2xl font-bold text-white tracking-tighter flex items-center gap-3">
                         <Settings className="text-purple-500" size={28} />
                         SİSTEM YAPILANDIRMASI
                     </h1>
-                    <p className="text-xs text-zinc-500 mt-1 uppercase tracking-widest pl-10">
+                    <p className="text-xs text-zinc-400 mt-2 uppercase tracking-widest pl-1">
                         galileoff • YETKİ SEVİYESİ: <span className="text-purple-500">ROOT</span>
                     </p>
                 </div>
+                <div>
+                    <button
+                        onClick={() => setRefreshTrigger(prev => prev + 1)}
+                        className="p-2 bg-zinc-900 hover:bg-zinc-800 rounded-lg text-zinc-400 hover:text-white transition-colors border border-zinc-800"
+                        title="Tüm Verileri Yenile"
+                    >
+                        <RefreshCw size={20} />
+                    </button>
+                </div>
             </div>
 
-            {/* Bildirim Alanı */}
-            {notification.message && (
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    className={`mb-8 p-4 border backdrop-blur-sm relative overflow-hidden ${notification.type === 'success'
-                        ? 'border-emerald-500/20 bg-emerald-500/10'
-                        : 'border-red-500/20 bg-red-500/10'
-                        }`}
-                >
-                    <div className="flex items-start gap-3">
-                        <div className={`p-2 rounded-full ${notification.type === 'success' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-red-500/20 text-red-500'}`}>
-                            {notification.type === 'success' ? <Shield size={20} /> : <Database size={20} />}
-                        </div>
-                        <div>
-                            <h4 className={`text-sm font-bold uppercase mb-1 ${notification.type === 'success' ? 'text-emerald-500' : 'text-red-500'}`}>
-                                {notification.type === 'success' ? 'İŞLEM BAŞARILI' : 'SİSTEM HATASI'}
-                            </h4>
-                            <p className={`text-xs ${notification.type === 'success' ? 'text-emerald-400/80' : 'text-red-400/80'}`}>
-                                {notification.message}
-                            </p>
-                        </div>
-                    </div>
-                    {/* Glass Şerit */}
-                    <div className="absolute top-0 left-0 w-1 h-full bg-current opacity-50" />
-                </motion.div>
-            )}
+
 
             {/* Kategori ve Keyword Yönetimi */}
-            <KeywordManager />
+            <KeywordManager refreshTrigger={refreshTrigger} />
 
             {/* User Agent Yönetimi */}
-            <UserAgentManager />
+            <UserAgentManager refreshTrigger={refreshTrigger} />
 
             {/* Watchlist Yönetimi */}
-            <WatchlistManager />
+            <WatchlistManager refreshTrigger={refreshTrigger} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
 
@@ -760,12 +840,12 @@ export default function SettingsPage() {
                         <p className="text-xs text-red-400/60">Tüm geçmiş tarama kayıtlarını ve indekslenmiş sayfaları kalıcı olarak siler.</p>
                     </div>
                     <button
-                        onClick={() => setShowResetConfirm(true)}
+                        onClick={openResetModal}
                         className="px-4 py-2 border border-red-500/50 text-red-500 text-xs font-bold hover:bg-red-500 hover:text-white transition-colors cursor-pointer">
                         SIFIRLA
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

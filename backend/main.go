@@ -73,7 +73,7 @@ func main() {
 		api.GET("/history/:id", historyCtrl.GetScanDetails)
 
 		// Sistem İşlemleri
-		api.DELETE("/system/reset-db", settingsCtrl.ResetDatabase)
+		api.POST("/system/reset-db", settingsCtrl.ResetDatabase)
 
 		// Ayarlar (Keywords)
 		api.GET("/settings/keywords", settingsCtrl.GetKeywords)

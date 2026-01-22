@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal, ArrowRight, Loader2, Check, X, ShieldCheck, Wifi, Lock, PenTool } from 'lucide-react';
 
@@ -32,7 +32,7 @@ export default function Login({ onLoginSuccess }) {
         await new Promise(r => setTimeout(r, 2000));
 
         try {
-            const res = await axios.post('http://localhost:8080/api/login', { username, password });
+            const res = await api.post('/login', { username, password });
             if (res.status === 200) {
                 setStatus('success');
                 updateStatus("AUTHENTICATION_SUCCESSFUL");

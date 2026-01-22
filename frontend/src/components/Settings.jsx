@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
-import { Settings, Server, Database, Save, Power, Eye, Lock, Edit2, Trash2, Plus, X, Check, Tag, RefreshCw, Layers, Clock } from 'lucide-react';
+import { Settings, Server, Database, Eye, Lock, Edit2, Trash2, Plus, X, Check, Tag, RefreshCw, Layers, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function KeywordManager({ refreshTrigger }) {
@@ -818,7 +818,7 @@ export default function SettingsPage() {
 
                             // Tüm watchlist öğelerinin is_active değerini güncelle
                             try {
-                                await axios.put('http://localhost:8080/api/settings/watchlist/toggle-all', { is_active: v });
+                                await api.put('/settings/watchlist/toggle-all', { is_active: v });
                             } catch (error) {
                                 console.error("Watchlist toggle hatası:", error);
                             }

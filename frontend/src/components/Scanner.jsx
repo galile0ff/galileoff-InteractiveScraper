@@ -22,7 +22,6 @@ export default function Scanner({ onScanComplete, onChangeTab }) {
                     setTorStatus('BİLİNMİYOR');
                 }
             } catch (err) {
-                console.error("Tor status check failed", err);
                 setTorStatus('BAĞLANTI YOK');
             }
         };

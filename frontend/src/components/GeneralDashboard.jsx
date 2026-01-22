@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react';
 import api from '../utils/api';
 import {
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    AreaChart, Area, PieChart, Pie, Cell, RadialBarChart, RadialBar, Legend
+    AreaChart, Area, PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
+    CartesianGrid, XAxis, YAxis
 } from 'recharts';
 import {
     Globe, FileText, MessageSquare, Database, Activity, Target, Shield,
-    Server, Cpu, HardDrive, Wifi, Zap, Lock, Terminal,
+    Server, Cpu, HardDrive, Wifi, Zap, Terminal,
     EyeOff,
     LayoutDashboard,
     Clock

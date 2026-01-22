@@ -73,7 +73,7 @@
 
 <br/>
 
-## 🛠️ Teknolojiler ve Mimari
+## 🛠️ Teknolojiler
 
 Bu proje, sınıfının en iyisi teknolojilerle inşa edilmiştir.
 
@@ -89,7 +89,7 @@ Bu proje, sınıfının en iyisi teknolojilerle inşa edilmiştir.
 
 ## 📂 Proje Ağacı
 
-```mermaid
+```
     A[InteractiveScraper] --> B[📂 backend];
     A --> C[📂 frontend];
     A --> D[📄 docker-compose.yml];

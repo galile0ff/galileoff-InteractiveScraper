@@ -261,7 +261,14 @@ export default function GeneralDashboard() {
                                                         </span>
                                                     )}
                                                     {site.category ? (
-                                                        <span className="text-[10px] px-2 py-1 rounded border border-purple-500/30 bg-purple-500/10 text-purple-400 uppercase tracking-wide font-bold">
+                                                        <span
+                                                            className="text-[10px] px-2 py-1 rounded border uppercase tracking-wide font-bold transition-colors"
+                                                            style={{
+                                                                backgroundColor: site.color ? `${site.color}20` : 'rgba(168, 85, 247, 0.1)',
+                                                                borderColor: site.color ? `${site.color}40` : 'rgba(168, 85, 247, 0.3)',
+                                                                color: site.color || '#a855f7'
+                                                            }}
+                                                        >
                                                             [{site.category}]
                                                         </span>
                                                     ) : (
@@ -346,37 +353,73 @@ export default function GeneralDashboard() {
                     </div>
 
 
-                    {/* Canlı Log */}
-                    <div className="border border-zinc-800 bg-black p-4 font-mono text-xs h-[200px] overflow-hidden relative flex flex-col">
-                        <div className="absolute top-2 right-2 flex gap-1 z-10">
-                            <div className="w-1.5 h-1.5 rounded-full bg-red-500/20 border border-red-500/50" />
-                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500/20 border border-amber-500/50" />
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/50" />
+                    {/* Terminal Log */}
+                    <div className="border border-zinc-800 bg-[#09090b] rounded-md overflow-hidden flex flex-col h-[400px] shadow-2xl font-mono text-xs relative group">
+                        {/* Status Bar */}
+                        <div className="flex items-center justify-between px-3 py-2 bg-zinc-900 border-b border-zinc-800 select-none">
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1.5">
+                                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-[pulse_3s_infinite]"></div>
+                                    <span className="text-zinc-400 font-bold tracking-widest text-[10px] uppercase">ff_TERMİNAL</span>
+                                </div>
+                                <div className="h-3 w-[1px] bg-zinc-800"></div>
+                                <span className="text-zinc-600 text-[9px] tracking-wider">galileoff.</span>
+                            </div>
+                            <div className="flex gap-4 text-[9px] font-medium text-zinc-500 font-sans tracking-tight">
+                                <div className="flex items-center gap-1">
+                                    <span>DURUM:</span>
+                                    <span className="text-emerald-500">CONNECTED</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <span>GECİKME:</span>
+                                    <span className="text-zinc-300">12ms</span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="text-emerald-500/50 mb-2 border-b border-emerald-500/20 pb-1 flex justify-between">
-                            <span>CANLI GÜNLÜK AKIŞI</span>
-                            <span className="text-[11px] font-normal">TCP:8080</span>
-                        </div>
-                        <div className="space-y-1 overflow-y-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                            {logs.length > 0 ? (
-                                logs.map((log) => (
-                                    <div key={log.id} className="flex gap-2">
-                                        <span className="text-zinc-500 shrink-0">[{new Date(log.created_at).toLocaleTimeString()}]</span>
-                                        <span className={`${log.level === 'ERROR' ? 'text-red-500' :
-                                            log.level === 'WARN' ? 'text-amber-500' :
-                                                log.level === 'SUCCESS' ? 'text-emerald-400' :
-                                                    'text-zinc-300'
-                                            }`}>
-                                            {log.level === 'ERROR' && 'ERR: '}
-                                            {log.level === 'WARN' && 'WRN: '}
-                                            {log.message}
-                                        </span>
+
+                        {/* Content Area */}
+                        <div className="flex-1 overflow-y-auto p-3 custom-scrollbar relative bg-[#050505] selection:bg-zinc-800 selection:text-white">
+                            {/* Subtle Grid Background */}
+                            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
+
+                            <div className="relative z-10 space-y-0.5">
+                                {logs.length > 0 ? (
+                                    logs.map((log) => (
+                                        <div key={log.id} className="flex gap-3 px-1.5 py-1 hover:bg-white/[0.03] transition-colors rounded-sm group/line items-baseline">
+                                            <span className="text-zinc-600 font-medium whitespace-nowrap text-[10px] tabular-nums opacity-60 group-hover/line:opacity-100 transition-opacity">
+                                                {new Date(log.created_at).toLocaleTimeString()}
+                                            </span>
+
+                                            <div className="flex-1 break-all flex gap-3 text-[11px] leading-relaxed">
+                                                <span className={`font-bold w-14 text-right shrink-0 tracking-wider ${log.level === 'ERROR' ? 'text-red-500' :
+                                                    log.level === 'WARN' ? 'text-amber-500' :
+                                                        log.level === 'SUCCESS' ? 'text-emerald-500' :
+                                                            'text-blue-500'
+                                                    }`}>
+                                                    {log.level}
+                                                </span>
+                                                <span className={`transition-colors ${log.level === 'ERROR' ? 'text-red-200' :
+                                                    log.level === 'WARN' ? 'text-amber-100' :
+                                                        'text-zinc-400 group-hover/line:text-zinc-300'
+                                                    }`}>
+                                                    {log.message}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="h-full flex flex-col items-center justify-center text-zinc-700 gap-2 opacity-50">
+                                        <Activity size={16} />
+                                        <span className="uppercase tracking-widest text-[10px]">Aktif veri akışı yok.</span>
                                     </div>
-                                ))
-                            ) : (
-                                <div className="text-zinc-500 italic">Log kaydı bekleniyor...</div>
-                            )}
-                            <div className="flex gap-2 underline decoration-emerald-500/30 animate-pulse"><span className="text-zinc-500">_</span></div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Footer Status */}
+                        <div className="px-3 py-1 bg-zinc-900/50 border-t border-zinc-800 flex justify-between items-center text-[9px] text-zinc-600 font-mono">
+                            <span>memory_usage: {(stats?.system_status?.memory || 0)}%</span>
+                            <span className="animate-pulse text-red-600">● REC</span>
                         </div>
                     </div>
 

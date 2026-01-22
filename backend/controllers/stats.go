@@ -38,6 +38,7 @@ func (ctrl *StatsController) GetGeneralStats(c *gin.Context) {
 		Source   string    `json:"source"`
 		Category string    `json:"category"`
 		ScanDate time.Time `json:"scan_date"`
+		Color    string    `json:"color"`
 	}
 	var recentScans []RecentScan
 	ctrl.DB.Table("stats").
@@ -46,6 +47,40 @@ func (ctrl *StatsController) GetGeneralStats(c *gin.Context) {
 		Order("stats.scan_date desc").
 		Limit(7).
 		Scan(&recentScans)
+
+	// Renkleri doldur
+	if len(recentScans) > 0 {
+		categoryColors := make(map[string]string)
+		var categories []string
+		for _, item := range recentScans {
+			if item.Category != "" {
+				categories = append(categories, item.Category)
+			}
+		}
+
+		if len(categories) > 0 {
+			type CatColor struct {
+				Category string
+				Color    string
+			}
+			var catColors []CatColor
+			ctrl.DB.Table("keywords").
+				Select("category, color").
+				Where("category IN ?", categories).
+				Group("category").
+				Scan(&catColors)
+
+			for _, cc := range catColors {
+				categoryColors[cc.Category] = cc.Color
+			}
+
+			for i := range recentScans {
+				if col, ok := categoryColors[recentScans[i].Category]; ok {
+					recentScans[i].Color = col
+				}
+			}
+		}
+	}
 
 	// --- İçerik Hacmi (Son 10 Site) ---
 	type ContentStat struct {

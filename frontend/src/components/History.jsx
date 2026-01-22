@@ -45,6 +45,12 @@ export default function HistoryPage() {
         setDetails(null);
     };
 
+    // İçerik formatlama fonksiyonu
+    const formatContent = (content) => {
+        if (!content) return <span className="text-zinc-600 italic">İçerik yok.</span>;
+        return <div className="text-zinc-300 whitespace-pre-wrap">{content}</div>;
+    };
+
     return (
         <div className="w-full max-w-7xl mx-auto pt-10 font-mono relative">
             {/* Başlık */}
@@ -105,7 +111,14 @@ export default function HistoryPage() {
                                                 </span>
                                             )}
                                             {item.category ? (
-                                                <span className="text-[10px] px-2 py-1 rounded border border-purple-500/30 bg-purple-500/10 text-purple-400 uppercase tracking-wide font-bold">
+                                                <span
+                                                    className="text-[10px] px-2 py-1 rounded border uppercase tracking-wide font-bold transition-colors"
+                                                    style={{
+                                                        backgroundColor: item.color ? `${item.color}20` : 'rgba(168, 85, 247, 0.1)',
+                                                        borderColor: item.color ? `${item.color}40` : 'rgba(168, 85, 247, 0.3)',
+                                                        color: item.color || '#a855f7'
+                                                    }}
+                                                >
                                                     [{item.category}]
                                                 </span>
                                             ) : (
@@ -211,30 +224,40 @@ export default function HistoryPage() {
                                                     </a>
                                                 </div>
 
-                                                <div className="bg-zinc-950/80 border border-zinc-800/50 p-4 rounded text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap mb-4 font-sans shadow-inner">
-                                                    {thread.content || <span className="text-zinc-600 italic">İçerik önizlemesi yok.</span>}
+                                                <div className="bg-zinc-950/80 border border-zinc-800/50 p-5 rounded-lg text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap mb-6 font-sans shadow-inner">
+                                                    {thread.content ? formatContent(thread.content) : <span className="text-zinc-600 italic">İçerik önizlemesi yok.</span>}
                                                 </div>
 
                                                 {/* İletiler */}
                                                 {thread.posts && thread.posts.length > 0 && (
-                                                    <div className="ml-4 pl-4 border-l-2 border-zinc-800 space-y-4 mt-4">
-                                                        <h4 className="text-xs uppercase font-bold text-zinc-400 flex items-center gap-2 mb-2">
-                                                            <MessageSquare size={12} /> Yanıtlar ({thread.posts.length})
+                                                    <div className="ml-0 pl-0 border-t border-zinc-800/50 pt-6 mt-6">
+                                                        <h4 className="text-sm uppercase font-bold text-zinc-400 flex items-center gap-2 mb-4">
+                                                            <MessageSquare size={14} /> Yanıtlar ({thread.posts.length})
                                                         </h4>
-                                                        {thread.posts.map((post) => (
-                                                            <div key={post.id} className="bg-zinc-900/40 p-3 rounded border border-zinc-800/50 hover:border-zinc-700 transition-colors">
-                                                                <div className="flex justify-between items-center mb-2 pb-2 border-b border-zinc-800/30">
-                                                                    <div className="flex items-center gap-2">
-                                                                        <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-xs text-blue-400 font-bold">
-                                                                            {post.author ? post.author.substring(0, 2).toUpperCase() : "??"}
+                                                        <div className="space-y-4">
+                                                            {thread.posts.map((post) => (
+                                                                <div key={post.id} className="bg-zinc-900/30 p-4 rounded-lg border border-zinc-800/50 hover:bg-zinc-900/50 hover:border-zinc-700 transition-all flex flex-col gap-3">
+                                                                    {/* Post Header */}
+                                                                    <div className="flex justify-between items-start border-b border-zinc-800/30 pb-3">
+                                                                        <div className="flex items-center gap-3">
+                                                                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30 flex items-center justify-center text-xs text-blue-300 font-bold shadow-sm">
+                                                                                {post.author ? post.author.substring(0, 2).toUpperCase() : "??"}
+                                                                            </div>
+                                                                            <div className='flex flex-col'>
+                                                                                <span className="text-sm font-bold text-zinc-200">{post.author || "Anonim"}</span>
+                                                                                <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-wider">MEMBER</span>
+                                                                            </div>
                                                                         </div>
-                                                                        <span className="text-xs font-bold text-blue-300">{post.author || "Anonim"}</span>
+                                                                        <span className="text-xs text-zinc-500 font-mono bg-zinc-950/50 px-2 py-1 rounded border border-zinc-800/50">{post.date}</span>
                                                                     </div>
-                                                                    <span className="text-xs text-zinc-600 font-mono">{post.date}</span>
+
+                                                                    {/* Post Content */}
+                                                                    <div className="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap pl-1 font-sans">
+                                                                        {formatContent(post.content)}
+                                                                    </div>
                                                                 </div>
-                                                                <p className="text-zinc-300 text-xs leading-relaxed whitespace-pre-wrap">{post.content}</p>
-                                                            </div>
-                                                        ))}
+                                                            ))}
+                                                        </div>
                                                     </div>
                                                 )}
                                             </div>

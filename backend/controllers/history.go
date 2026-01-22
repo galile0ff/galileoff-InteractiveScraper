@@ -21,24 +21,62 @@ func NewHistoryController(db *gorm.DB) *HistoryController {
 func (ctrl *HistoryController) GetHistory(c *gin.Context) {
 
 	type HistoryItem struct {
-		ID           uint      `json:"id"` // Stats ID
+		ID           uint      `json:"id"`
 		URL          string    `json:"url"`
 		IsForum      bool      `json:"is_forum"`
-		Source       string    `json:"source"`    // manual veya watchlist
-		LastScan     time.Time `json:"last_scan"` // Stats.ScanDate
+		Source       string    `json:"source"`
+		LastScan     time.Time `json:"last_scan"`
 		TotalThreads int       `json:"total_threads"`
 		TotalPosts   int       `json:"total_posts"`
 		Category     string    `json:"category"`
+		Color        string    `json:"color"`
 	}
 
 	var history []HistoryItem
 
-	// Stats tablosunu ana tablo olarak kullan
+	// 1. Temel verileri çek
 	ctrl.DB.Table("stats").
 		Select("stats.id, sites.url, sites.is_forum, stats.source, stats.scan_date as last_scan, stats.total_threads, stats.total_posts, (SELECT category FROM threads WHERE threads.stats_id = stats.id LIMIT 1) as category").
 		Joins("left join sites on stats.site_id = sites.id").
 		Order("stats.scan_date desc").
 		Scan(&history)
+
+	// 2. Kategorilere ait renkleri bul ve eşleştir
+	if len(history) > 0 {
+		// Benzersiz kategorileri topla
+		categoryColors := make(map[string]string)
+		var categories []string
+		for _, item := range history {
+			if item.Category != "" {
+				categories = append(categories, item.Category)
+			}
+		}
+
+		if len(categories) > 0 {
+			type CatColor struct {
+				Category string
+				Color    string
+			}
+			var catColors []CatColor
+			// Her kategori için bir renk seç
+			ctrl.DB.Table("keywords").
+				Select("category, color").
+				Where("category IN ?", categories).
+				Group("category").
+				Scan(&catColors)
+
+			for _, cc := range catColors {
+				categoryColors[cc.Category] = cc.Color
+			}
+
+			// Renkleri history öğelerine dağıt
+			for i := range history {
+				if col, ok := categoryColors[history[i].Category]; ok {
+					history[i].Color = col
+				}
+			}
+		}
+	}
 
 	c.JSON(http.StatusOK, history)
 }

@@ -37,9 +37,11 @@ type ThreadData struct {
 }
 
 type PostData struct {
-	Author  string `json:"author"`
-	Content string `json:"content"`
-	Date    string `json:"date"`
+	Author     string `json:"author"`
+	Content    string `json:"content"`
+	Date       string `json:"date"`
+	Reactions  string `json:"reactions"`
+	LastEdited string `json:"last_edited"`
 }
 
 // AnalyzeSite, hedef siteyi tarar ve sonuçları döndürür.
@@ -110,8 +112,30 @@ func performScan(targetURL string, torProxy string, keywords []models.Keyword, u
 		URL: targetURL,
 	}
 
-	c.OnHTML("html", func(e *colly.HTMLElement) {
+	// Başlık Çekme
+	c.OnHTML("title", func(e *colly.HTMLElement) {
+		if result.Title == "" {
+			result.Title = strings.TrimSpace(e.Text)
+		}
+	})
 
+	c.OnHTML("h1", func(e *colly.HTMLElement) {
+		// h1 varsa öncelik ver veya title boşsa doldur
+		h1 := strings.TrimSpace(e.Text)
+		if h1 != "" {
+			result.Title = h1
+		}
+	})
+
+	c.OnHTML(".p-title-value, .ipbType_sectionTitle", func(e *colly.HTMLElement) {
+		// Forum özel başlık sınıfları
+		title := strings.TrimSpace(e.Text)
+		if title != "" {
+			result.Title = title
+		}
+	})
+
+	c.OnHTML("html", func(e *colly.HTMLElement) {
 		// --- Forum Tespiti ---
 		detectionScore := 0
 
@@ -172,48 +196,102 @@ func performScan(targetURL string, torProxy string, keywords []models.Keyword, u
 		}
 
 		// 1. İletileri Tespit Et
+		var posts []PostData
+
 		// Yaygın forum yazılımlarının kullandığı kapsayıcı sınıflar
 		postSelectors := []string{
 			".post", ".message", ".entry", "article", ".comment", ".post-container", "div[id^='post']",
 			".postbit", ".post-content", ".message-content", ".post_body", ".entry-content",
 			".ItemBody", ".CommentBody", ".lia-message-body-content", ".js-post__content-text",
-			".cooked", ".topic-body", ".post-message",
+			".cooked", ".topic-body", ".post-message", ".post_wrapper", ".post_block",
+			"table.post", "div.post", "td.post_content",
 		}
-
-		var posts []PostData
 
 		// Seçicileri dene
 		for _, selector := range postSelectors {
 			e.DOM.Find(selector).Each(func(i int, s *goquery.Selection) {
+				// --- Meta Verileri Çek ---
+
+				// Meta Verileri Çek
+				lastEdited := strings.TrimSpace(s.Find(".message-lastEdit, .post-edit, .edited-by").Text())
+				lastEdited = strings.TrimSpace(strings.ReplaceAll(lastEdited, "\n", " "))
+
+				// --- İçerik Temizliği ---
+
 				// İçerik
-				content := strings.TrimSpace(s.Find(".content, .message, .body, .text, .entry-content, .post_body").Text())
+				contentSel := s.Find(".content, .message, .body, .text, .entry-content, .post_body, .post_content, .posttext, .post-text, .messageText, .uu_post")
+
+				// Gereksiz etiketleri temizle
+				contentSel.Find(`
+					script, style, button, isindex,
+					.footer, .signature, .kutu, 
+					.message-cell--user, .message-userInfo, .post-sidebar, .postprofile, .user-details, .post-left, .user_info, .author_info,
+					.message-userExtras, .message-avatar-wrapper, .message-userTitle, .message-userBanner,
+					.bbCodeBlock-expandLink, .attribution,
+					.reaction-bar, .reactions, .message-attribution, .message-footer, .message-lastEdit, .privateControls, .publicControls,
+					.post_head, .post-head, .node-controls, .post-date, .date, .permalink, .post-number,
+					dl.pairs
+				`).Remove()
+
+				// Metin temizliği
+				content := strings.TrimSpace(contentSel.Text())
+				content = strings.ReplaceAll(content, "Click to expand...", "")
+				content = strings.ReplaceAll(content, "Tıkla ve genişlet...", "")
+
+				// Eğer özel içerik seçicisi işe yaramazsa (veya yanlışlıkla her şeyi sildiyse) ana konteynerden al
 				if content == "" {
-					content = strings.TrimSpace(s.Text()) // Özel sınıf yoksa hepsini al
-					if len(content) > 500 {
-						content = content[:500] + "..."
-					} // Çok uzunsa kes
+					// Ana konteynerin textini al ama temizleyerek
+					clone := s.Clone()
+					// Buradaki remove listesi de aynı olmalı
+					clone.Find(`
+						script, style, button, 
+						.footer, .signature, .user_info, .author_info, .post_head, .post-head,
+						.message-cell--user, .message-userInfo, .postprofile,
+						.message-attribution, .message-footer, .message-lastEdit, .reaction-bar
+					`).Remove()
+
+					content = strings.TrimSpace(clone.Text())
+					content = strings.ReplaceAll(content, "Click to expand...", "")
+
+					if len(content) > 2000 {
+						content = content[:2000] + "..."
+					}
+				}
+
+				// Çok kısa içerikleri yoksay (gürültü önleme)
+				if len(content) < 3 {
+					return
 				}
 
 				// Yazar
-				author := strings.TrimSpace(s.Find(".author, .user, .username, .name, a[href*='user'], .poster").First().Text())
+				author := strings.TrimSpace(s.Find(".author, .user, .username, .name, a[href*='user'], .poster, .user-details, .popupctrl, .mem_profile").First().Text())
+				if author == "" {
+					author = strings.TrimSpace(s.Find(".user_info, .author_info, .post_author").First().Text())
+				}
 				if author == "" {
 					author = "Anonymous"
 				}
 
 				// Tarih
-				date := strings.TrimSpace(s.Find(".date, .time, time, .timestamp, .published").First().Text())
+				date := strings.TrimSpace(s.Find(".date, .time, time, .timestamp, .published, .post-date, .date-header, .post_date").First().Text())
+				if date == "" {
+					// Başlık veya meta kısımlarında tarih arayalım
+					date = strings.TrimSpace(s.Find(".post_head, .post-head, .thead").Text())
+				}
 				if date == "" {
 					date = time.Now().Format("2006-01-02 15:04")
 				}
 
 				posts = append(posts, PostData{
-					Author:  author,
-					Content: content,
-					Date:    date,
+					Author:     cleanText(author),
+					Content:    cleanText(content), // Temizleme fonksiyonu kullan
+					Date:       cleanText(date),
+					Reactions:  "",
+					LastEdited: lastEdited,
 				})
 			})
 
-			// Eğer post bulduysak diğer seçicileri denemeye gerek yok (çakışmayı önlemek için)
+			// Eğer post bulduysak ve yeterli sayıdaysa (false pozitifleri önlemek için)
 			if len(posts) > 0 {
 				break
 			}

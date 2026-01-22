@@ -23,12 +23,14 @@ type Thread struct {
 }
 
 type Post struct {
-	ID        uint           `gorm:"primaryKey" json:"id"`
-	ThreadID  uint           `gorm:"index" json:"thread_id"`
-	Author    string         `json:"author"`
-	Content   string         `json:"content"`
-	Date      string         `json:"date"`
-	Order     int            `json:"order"` // İleti sırası
-	CreatedAt time.Time      `json:"created_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+	ID         uint           `gorm:"primaryKey" json:"id"`
+	ThreadID   uint           `gorm:"index" json:"thread_id"`
+	Author     string         `json:"author"`
+	Content    string         `json:"content"`
+	Date       string         `json:"date"`
+	Order      int            `json:"order"` // İleti sırası
+	Reactions  string         `json:"reactions"`
+	LastEdited string         `json:"last_edited"` // Düzenleme tarihi/bilgisi
+	CreatedAt  time.Time      `json:"created_at"`
+	DeletedAt  gorm.DeletedAt `gorm:"index" json:"-"`
 }

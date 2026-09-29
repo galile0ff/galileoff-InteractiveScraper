@@ -13,11 +13,11 @@
 <h3 align="center">galileoff-InteractiveScraper</h3>
 *Siber Vatan Programı Yıldız CTI Ekibi görevi kapsamında geliştirilmiştir.*
 <p align="center">
-  <a href="#-özellikler">🚀 Özellikler</a> •
-  <a href="#%EF%B8%8F-teknolojiler-ve-mimari">🛠️ Teknolojiler</a> •
-  <a href="#-kurulum-ve-çalıştırma">📦 Kurulum</a> •
-  <a href="#-api-dokümantasyonu">📖 API</a> •
-  <a href="#-ekran-görüntüleri">📸 Galeri</a>
+  <a href="#-özellikler">Özellikler</a> •
+  <a href="#%EF%B8%8F-teknolojiler-ve-mimari">Teknolojiler</a> •
+  <a href="#-kurulum-ve-çalıştırma">Kurulum</a> •
+  <a href="#-api-dokümantasyonu">API</a> •
+  <a href="#-ekran-görüntüleri">Galeri</a>
 </p>
 
 </div>
@@ -26,45 +26,39 @@
 
 <br/>
 
-## 🔎 Proje Hakkında
+## Proje Hakkında
 
 **galileoff-InteractiveScraper** sıradan veri kazıma araçlarının ötesine geçen, kullanıcı deneyimini merkeze alan bir uygulamadır. **Go (Golang)**'ın gücünü **Next.js**'in modern arayüzüyle birleştirerek hem geliştiriciler hem de son kullanıcılar için güçlü bir web scraping, analiz ve izleme çözümü sunar.
 
 <br/>
 
-## 🚀 Özellikler
+## Özellikler
 
 <table>
   <tr>
     <td align="center" width="33%">
-      <h3>🔍</h3>
       <strong>Akıllı Scraping</strong>
       <p>Dinamik ve statik siteleri ayırt etmeksizin veriyi en saf haliyle çeker. JavaScript render desteği ile modern web'e tam uyumlu.</p>
     </td>
     <td align="center" width="33%">
-      <h3>👁️</h3>
       <strong>Watchlist & İzleme</strong>
       <p>Hedef siteleri 7/24 izler. Değişiklik olduğunda yakalar, kaydeder ve size raporlar. Hiçbir güncellemeyi kaçırmayın.</p>
     </td>
     <td align="center" width="33%">
-      <h3>📊</h3>
       <strong>İnteraktif Dashboard</strong>
       <p>Next.js ve Tailwind ile hazırlanmış şık arayüz. Verilerinizi ham liste yerine, anlamlı grafikler ve istatistiklerle görün.</p>
     </td>
   </tr>
   <tr>
     <td align="center" width="33%">
-      <h3>🔐</h3>
       <strong>Kurumsal Güvenlik</strong>
       <p>JWT (JSON Web Token) tabanlı oturum yönetimi ve güvenli API endpointleri ile verileriniz her zaman güvende.</p>
     </td>
     <td align="center" width="33%">
-      <h3>⚙️</h3>
       <strong>Tam Özelleştirme</strong>
       <p>Kendi User-Agent havuzunuzu yönetin, etiketlenecek kelimeleri filtreleyin ve tarama davranışlarını ince ayarla kontrol edin.</p>
     </td>
     <td align="center" width="33%">
-      <h3>⚡</h3>
       <strong>Yüksek Performans</strong>
       <p>Go backend ile milisaniyeler içinde cevap veren API'lar ve Docker ile tek komutla ayağa kalkan mimari.</p>
     </td>
@@ -73,7 +67,7 @@
 
 <br/>
 
-## 🛠️ Teknolojiler ve Mimari
+## Teknolojiler ve Mimari
 
 Bu proje, sınıfının en iyisi teknolojilerle inşa edilmiştir.
 
@@ -87,7 +81,7 @@ Bu proje, sınıfının en iyisi teknolojilerle inşa edilmiştir.
 
 <br/>
 
-## 📂 Proje Ağacı
+## Proje Ağacı
 
 ```
     A[InteractiveScraper] --> B[📂 backend];
@@ -104,9 +98,9 @@ Bu proje, sınıfının en iyisi teknolojilerle inşa edilmiştir.
 
 <br/>
 
-## 📦 Kurulum ve Çalıştırma
+## Kurulum ve Çalıştırma
 
-### ⚡ Hızlı Başlangıç (Docker)
+### Hızlı Başlangıç (Docker)
 
 Tüm sistemi tek satır kod ile ayağa kaldırın. En temiz ve önerilen yöntemdir.
 
@@ -133,12 +127,12 @@ docker-compose up --build
 > [!IMPORTANT]
 > **Varsayılan Admin Girişi**
 >
-> 👤 **Kullanıcı:** `admin`
-> 🔑 **Şifre:** `galileoff`
+>  **Kullanıcı:** `admin`
+>  **Şifre:** `galileoff`
 
 <br/>
 
-### 🛠️ Geliştirici Kurulumu (Manuel)
+### Geliştirici Kurulumu (Manuel)
 
 Docker kullanmak istemiyorsanız, modülleri ayrı ayrı çalıştırabilirsiniz.
 
@@ -166,7 +160,7 @@ npm run dev
 
 <br/>
 
-## ⚙️ Yapılandırma
+## Yapılandırma
 
 Sistem ayarlarını `.env` dosyası veya ortam değişkenleri ile yönetebilirsiniz.
 
@@ -179,24 +173,24 @@ Sistem ayarlarını `.env` dosyası veya ortam değişkenleri ile yönetebilirsi
 
 <br/>
 
-## 📖 API Dokümantasyonu
+## API Dokümantasyonu
 
 API'miz REST standartlarına uygundur ve tamamen belgelenmiştir. Tüm güvenli isteklerde `Authorization: Bearer <token>` başlığı kullanılmalıdır.
 
-### 🔑 Auth & Kullanıcı
+### Auth & Kullanıcı
 *   `POST /api/login` - Oturum açma ve Token alma.
 
-### 🕷️ Tarama (Scraping)
+### Tarama (Scraping)
 *   `POST /api/scan` - Yeni tarama görevi başlat.
     *   *Parametreler:* `url`, `keywords`, `deep_scan`
 *   `GET /api/history` - Geçmiş taramaları listele.
 
-### ⚙️ Sistem & Ayarlar
+### Sistem & Ayarlar
 *   `GET /api/stats/general` - Dashboard istatistikleri.
 *   `POST /api/settings/watchlist` - Siteyi takibe al.
 *   `POST /api/settings/keywords` - Etiketlenen/Aranan kelime ekle.
 
-### 📜 Detaylı Loglama (Logging)
+### Detaylı Loglama (Logging)
 Sistem, yapılan her işlemi kayıt altına alır.
 *   `GET /api/logs` - Tüm sistem loglarını getirir.
 *   `GET /api/logs/stats` - Log seviyelerine göre (INFO, ERROR, WARN) dağılımı verir.
@@ -207,7 +201,7 @@ Sistem, yapılan her işlemi kayıt altına alır.
 
 <br/>
 
-## 📸 Ekran Görüntüleri
+## Ekran Görüntüleri
 
 <div align="center">
 
@@ -225,7 +219,7 @@ Sistem, yapılan her işlemi kayıt altına alır.
 
 <br/>
 
-## ❓ Sıkça Sorulan Sorular (SSS)
+## Sıkça Sorulan Sorular (SSS)
 
 <summary><strong>Frontend API'ye bağlanamıyor hatası alıyorum?</strong></summary>
 
@@ -239,7 +233,7 @@ Sistem, yapılan her işlemi kayıt altına alır.
 
 <br/>
 
-## ☕ Destek
+## Destek
 
 Bu proje açık kaynaklıdır ve topluluk desteğiyle geliştirilebilir. Eğer işinize yaradıysa:
 
@@ -249,7 +243,7 @@ Bu proje açık kaynaklıdır ve topluluk desteğiyle geliştirilebilir. Eğer i
 </a>
 </div>
 
-## 🤝 Katkıda Bulunma
+## Katkıda Bulunma
 
 1. Fork'layın
 2. Branch oluşturun (`git checkout -b feature/yeniozellik`)
@@ -257,7 +251,7 @@ Bu proje açık kaynaklıdır ve topluluk desteğiyle geliştirilebilir. Eğer i
 4. Push'layın (`git push origin feature/yeniozellik`)
 5. Pull Request açın
 
-## 📈 Star History
+## Star History
 
 <a href="https://www.star-history.com/#galile0ff/galileoff-InteractiveScraper&type=date&legend=top-left">
  <picture>
@@ -267,7 +261,7 @@ Bu proje açık kaynaklıdır ve topluluk desteğiyle geliştirilebilir. Eğer i
  </picture>
 </a>
 
-## 📄 Lisans
+## Lisans
 
 Bu proje **MIT Lisansı** ile lisanslanmıştır. Detaylar için `LICENSE` dosyasına bakınız.
 
